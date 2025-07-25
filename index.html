@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preventivatore Pasolini</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <img src="logo.jpg" alt="Logo Pasolini" class="logo">
+        <h1>Preventivatore</h1>
+        <div id="accesso">
+            <label for="codice">Inserisci il codice di accesso:</label>
+            <input type="password" id="codice" placeholder="Codice">
+            <button onclick="verificaCodice()">Accedi</button>
+        </div>
+        <div id="contenuto" style="display:none;">
+            <form id="preventivo-form">
+                <label>Nome punto vendita:</label><input type="text" id="nomePuntoVendita" required><br>
+                <label>Intestazione Fatturazione:</label><input type="text" id="intestazioneFatturazione" required><br>
+                <label>Data:</label><input type="date" id="dataPreventivo"><br><br>
+                <div id="prodotti-container"></div>
+                <button type="submit">Genera PDF</button>
+            </form>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

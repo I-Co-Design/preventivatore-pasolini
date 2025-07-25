@@ -1,0 +1,6 @@
+
+[
+    {"linea": "Linea 1", "codice": "P001", "descrizione": "Prodotto A", "prezzo": 100.0},
+    {"linea": "Linea 2", "codice": "P002", "descrizione": "Prodotto B", "prezzo": 150.0},
+    {"linea": "Linea 3", "codice": "P003", "descrizione": "Prodotto C", "prezzo": 200.0}
+]
