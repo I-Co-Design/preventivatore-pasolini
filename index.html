@@ -2,29 +2,2901 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Preventivatore Pasolini</title>
-    <link rel="stylesheet" href="style.css">
+    <title>PREVENTIVATORE AUTOMATICO PROGETTO PROLUNGHE</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f7f7f7; }
+        .container { max-width: 800px; margin: 40px auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px #bbb; padding: 30px; }
+        h1 { text-align: center; color: #003366; }
+        .logo { display: block; margin: 0 auto 20px; width: 180px; }
+        .hidden { display: none; }
+        .form-group { margin-bottom: 18px; }
+        label { font-weight: bold; display: block; margin-bottom: 6px; }
+        input[type="text"], input[type="email"], input[type="password"], textarea, select { width: 100%; padding: 8px; }
+        button { background: #003366; color: #fff; border: none; padding: 10px 20px; border-radius: 5px; font-size: 16px; cursor: pointer; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .category { background: #eef; margin-bottom: 20px; padding: 15px; border-radius: 6px; }
+        .product-item { display: flex; align-items: center; margin-bottom: 8px; }
+        .product-details { flex-grow: 1; font-size: 0.8em; }
+        .product-item input[type="number"] { width: 80px; margin-left: 10px; }
+        .preview { background: #ffe; padding: 18px; border-radius: 8px; margin-bottom: 18px; font-size: 0.8em; }
+        .success { color: green; font-weight: bold; text-align: center; padding: 15px; }
+        .button-group { display: flex; justify-content: space-between; margin-top: 20px; }
+        .preview table { width: 100%; border-collapse: collapse; }
+        .preview table td, .preview table th { font-size: 0.9em; padding: 5px; border: 1px solid #ddd; }
+        .preview table th.align-right, .preview table td.align-right { text-align: right; }
+        .total-row { font-weight: bold; }
+        .total-row td { border-top: 2px solid #000; }
+
+        /* Stili per l'input della password e l'icona */
+        .password-container {
+            position: relative;
+            width: 100%;
+        }
+        .password-container input {
+            width: 100%;
+            padding-right: 40px;
+            box-sizing: border-box; /* Assicura che il padding non allarghi il campo */
+        }
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            user-select: none; /* Impedisce la selezione del testo dell'icona */
+            font-size: 1.2em; /* Dimensione maggiore per l'icona */
+            color: #555;
+        }
+
+        /* Stili specifici per la stampa */
+        @media print {
+            body { font-size: 12px; }
+            .container { box-shadow: none; border: none; padding: 0; }
+            button, .button-group, .email-info, #note-section { display: none; }
+            #anteprima-section { display: block !important; }
+            h1, h2, h3, p { margin: 5px 0; }
+        }
+
+        /* Stili per il footer */
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.75em;
+            color: #888;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <img src="logo.jpg" alt="Logo Pasolini" class="logo">
-        <h1>Preventivatore</h1>
-        <div id="accesso">
-            <label for="codice">Inserisci il codice di accesso:</label>
-            <input type="password" id="codice" placeholder="Codice">
-            <button onclick="verificaCodice()">Accedi</button>
+        <img src="LOGO PASOLINI CC.jpg" class="logo" alt="PASOLINI Logo">
+        <h1>PREVENTIVATORE AUTOMATICO<br>PROGETTO PROLUNGHE</h1>
+
+        <div id="login-section">
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="password-container">
+                    <input type="password" id="passwordInput">
+                    <span class="toggle-password" onclick="togglePasswordVisibility()">👁️</span>
+                </div>
+            </div>
+            <button onclick="checkLogin()">Accedi</button>
         </div>
-        <div id="contenuto" style="display:none;">
-            <form id="preventivo-form">
-                <label>Nome punto vendita:</label><input type="text" id="nomePuntoVendita" required><br>
-                <label>Intestazione Fatturazione:</label><input type="text" id="intestazioneFatturazione" required><br>
-                <label>Data:</label><input type="date" id="dataPreventivo"><br><br>
-                <div id="prodotti-container"></div>
-                <button type="submit">Genera PDF</button>
-            </form>
+
+        <div id="cliente-section" class="hidden">
+            <div class="form-group">
+                <label for="nomePuntoVendita">Nome Punto Vendita</label>
+                <input type="text" id="nomePuntoVendita" required>
+            </div>
+            <div class="form-group">
+                <label for="indirizzoPuntoVendita">Indirizzo Punto Vendita</label>
+                <input type="text" id="indirizzoPuntoVendita" required>
+            </div>
+            <div class="form-group">
+                <label for="fatturazione">Fatturazione</label>
+                <input type="text" id="fatturazione" required>
+            </div>
+            <div class="form-group">
+                <label for="linea">Seleziona Linea Prodotto</label>
+                <select id="linea"></select>
+            </div>
+            <button onclick="startPreventivo()">Avanti</button>
+        </div>
+
+        <div id="preventivo-section" class="hidden">
+            <div id="prodotti-list"></div>
+            <div class="button-group">
+                <button onclick="tornaAChoice()">Indietro</button>
+                <div>
+                    <button onclick="aggiungiLinea()">Aggiungi un’altra linea prodotto</button>
+                    <button onclick="mostraAnteprima()">Concludi preventivo</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="anteprima-section" class="hidden">
+            <div class="preview" id="riepilogo"></div>
+            <div class="email-info">
+                <p style="color: red; font-weight: bold; text-align: center;">ATTENZIONE: Il servizio di invio mail non è ancora attivo. Dopo aver stampato il preventivo, si prega di inviarlo manualmente all'indirizzo del responsabile commerciale Pasolini.</p>
+            </div>
+            <div class="form-group" id="note-section">
+                <label for="note">Note</label>
+                <textarea id="note" rows="4" placeholder="Inserisci qui eventuali note o richieste speciali per il preventivo..."></textarea>
+                <button onclick="popolaRiepilogo()">INSERISCI NOTA</button>
+            </div>
+            <div class="button-group">
+                <button onclick="tornaAllaHome()">Nuovo preventivo</button>
+                <button onclick="tornaAPreventivo()">Indietro</button>
+                <div>
+                    <button onclick="stampaPreventivo()">Stampa Preventivo</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="conferma-section" class="hidden">
+            <div class="success">Preventivo salvato e stampato. Si prega di inviarlo manualmente.</div>
+            <button onclick="tornaAllaHome()">Nuovo preventivo</button>
         </div>
     </div>
-    <script src="script.js"></script>
+
+    <div class="footer">
+        <p>Sviluppato da I-Co Design di C. Carbini - Tutti i diritti riservati.</p>
+        <p>Il presente preventivatore non raccoglie dati personali.</p>
+    </div>
+
+    <script>
+        // Password di accesso
+        const PASSWORD = "PASOLINI2025";
+        const IVA_RATE = 0.22; // 22%
+
+        // Database dei prodotti con i dati forniti
+        const prodotti = {
+            "linee": {
+                "RIPIANI": {
+                    "categorie": {
+                        "RIPIANI": [
+                            {
+    "CODICE": "4320222/8",
+    "DESCRIZIONE": "RIPIANO LAMIERA LISCIO VERNICIATO BIANCO RAL.9010 BUCCIATO AXALTA 750X300 SP. 8/10 DIS. AS2015.750 (SENZA FORI)",
+    "PREZZO": "€ 13,34"
+  },
+  {
+    "CODICE": "4320224/8",
+    "DESCRIZIONE": "Ripiano in lamiera liscio, verniciato bianco RAL 9010 dim. L 100 x P 30 cm SP.8/10",
+    "PREZZO": "€ 16,07"
+  },
+  {
+    "CODICE": "4320424/8",
+    "DESCRIZIONE": "Ripiano in lamiera FORATO, verniciato bianco RAL 9010 dim. L 100 x P 30 cm SP.8/10",
+    "PREZZO": "€ 23,50"
+  },
+  {
+    "CODICE": "4320432/8",
+    "DESCRIZIONE": "PIANO VERNICIATO RAL.9010 BUCCIATO AXALTA  FORATO 750X400 sp.8/10 DIS. AS2009.750",
+    "PREZZO": "€ 14,68"
+  },
+  {
+    "CODICE": "4320232/8",
+    "DESCRIZIONE": "PIANO VERNICIATO BUCCIATO AXALTA RAL.9010  750X400 sp.8/10 DIS. AS2010.750",
+    "PREZZO": "€ 18,24"
+  },
+  {
+    "CODICE": "4320442/8",
+    "DESCRIZIONE": "PIANO VERNICIATO RAL. 9010 BUCCIATO AXALTA FORATO 750X500 sp.8/10",
+    "PREZZO": "€ 21,84"
+  },
+  {
+    "CODICE": "4320242/8",
+    "DESCRIZIONE": "PIANO VERNICIATO RAL.9010 BUCCIATO AXALTA 750X500 SP.8/10",
+    "PREZZO": "€ 18,95"
+  },
+  {
+    "CODICE": "4320452/8",
+    "DESCRIZIONE": "PIANO VERNICIATO FORATO 750X600 sp.8/10 DIS.AS2011.750",
+    "PREZZO": "€ 18,75"
+  },
+  {
+    "CODICE": "4320252/8",
+    "DESCRIZIONE": "PIANO VERNICIATO 750X600 sp.8/10 DIS. AS2012.750",
+    "PREZZO": "€ 18,75"
+  },
+  {
+    "CODICE": "4320434/8",
+    "DESCRIZIONE": "PIANO VERNICIATO RAL.9010 BUCCIATO AXALTA FORATO 100X40 sp.8/10",
+    "PREZZO": "€ 23,46"
+  },
+  {
+    "CODICE": "4320234/8",
+    "DESCRIZIONE": "PIANO VERNICIATO RAL.9010 BUCCIATO AXALTA 100X40 sp.8/10",
+    "PREZZO": "€ 24,80"
+  },
+  {
+    "CODICE": "4320444/8",
+    "DESCRIZIONE": "PIANO VERNICIATO RAL.9010 BUCCIATO AXALTA  FORATO 100X50 SP. 8/10",
+    "PREZZO": "€ 23,45"
+  },
+  {
+    "CODICE": "4320244/8",
+    "DESCRIZIONE": "PIANO VERNICIATO RAL.9010 BUCCIATO AXALTA 100X50 SP. 8/10",
+    "PREZZO": "€ 20,10"
+  },
+  {
+    "CODICE": "4320454/8",
+    "DESCRIZIONE": "PIANO VERNICIATO FORATO 100X60 sp.8/10 DIS.AS2011.1000",
+    "PREZZO": "€ 24,35"
+  },
+  {
+    "CODICE": "4320254/8",
+    "DESCRIZIONE": "PIANO VERNICIATO 100X60 sp.8/10 AS2012.1000",
+    "PREZZO": "€ 21,57"
+  },
+  {
+    "CODICE": "4320226/8",
+    "DESCRIZIONE": "Ripiano in lamiera liscio, verniciato bianco RAL 9010 dim. L 133 x P 30 cm SP.8/10",
+    "PREZZO": "€ 16,65"
+  },
+  {
+    "CODICE": "4320236/8",
+    "DESCRIZIONE": "Ripiano in lamiera liscio, verniciato bianco RAL 9010 dim. L 133 x P 40 cm SP.8/10",
+    "PREZZO": "€ 24,18"
+  },
+  {
+    "CODICE": "4320246/8",
+    "DESCRIZIONE": "Ripiano in lamiera liscio, verniciato bianco RAL 9010 dim. L 133 x P 50 cm SP.8/10",
+    "PREZZO": "€ 28,66"
+  },
+  {
+    "CODICE": "4320256/8",
+    "DESCRIZIONE": "Ripiano in lamiera liscio, verniciato bianco RAL 9010 dim. L 133 x P 60 cm SP.8/10",
+    "PREZZO": "€ 26,28"
+  },
+  {
+    "CODICE": "4320436/8",
+    "DESCRIZIONE": "Ripiano in lamiera forato, verniciato bianco RAL 9010 dim. L 133 x P 40 cm SP.8/10",
+    "PREZZO": "€ 19,47"
+  },
+  {
+    "CODICE": "4320446/8",
+    "DESCRIZIONE": "Ripiano in lamiera forato, verniciato bianco RAL 9010 dim. L 133 x P 50 cm SP.8/10",
+    "PREZZO": "€ 20,74"
+  },
+  {
+    "CODICE": "4320456/8",
+    "DESCRIZIONE": "Ripiano in lamiera forato, verniciato bianco RAL 9010 dim. L 133 x P 60 cm SP.8/10",
+    "PREZZO": "€ 29,28"
+  },
+  {
+    "CODICE": 4320604,
+    "DESCRIZIONE": "RIPIANO LAMIERA LISCIO VERNICIATO RAL.9010 BUCCIATO AXALTA DIM P.300 X ANG. INT. 45° DIS. AS1067A",
+    "PREZZO": "€ 9,24"
+  },
+  {
+    "CODICE": 4320606,
+    "DESCRIZIONE": "Ripiano in lamiera liscio, verniciato bianco RAL 9010 dim. P 40 cm per Angolo Interno 45°",
+    "PREZZO": "€ 12,72"
+  },
+  {
+    "CODICE": 4320608,
+    "DESCRIZIONE": "Ripiano in lamiera liscio, verniciato bianco RAL 9010 dim. P 50 cm per Angolo Interno 45°",
+    "PREZZO": "€ 12,23"
+  },
+  {
+    "CODICE": 4320610,
+    "DESCRIZIONE": "Ripiano in lamiera liscio, verniciato bianco RAL 9010 dim. P 60 cm per Angolo Interno 45°",
+    "PREZZO": "€ 16,80"
+  },
+  {
+    "CODICE": 4320648,
+    "DESCRIZIONE": "Ripiano in lamiera liscio, verniciato bianco RAL 9010 dim. P 50 cm per Angolo esterno 45°",
+    "PREZZO": "€ 23,40"
+  },
+  {
+    "CODICE": "RI.ME.M.0001-B1B",
+    "DESCRIZIONE": "Ripiano in lamiera liscio, verniciato bianco RAL 9010 dim. P 50 cm per Angolo esterno GONDOLA 45°",
+    "PREZZO": "€ 37,50"
+  },
+  {
+    "CODICE": "RI.ME.M.0004-B1B",
+    "DESCRIZIONE": "Ripiano in lamiera liscio, verniciato bianco RAL 9010 dim. P 40 cm per Angolo esterno GONDOLA 45°",
+    "PREZZO": "€ 37,50"
+  }
+                        ]
+                    }
+                },
+                "MENSOLE": {
+                    "categorie": {
+
+                        "MENSOLE": [
+                            {
+    "CODICE": 4360004,
+    "DESCRIZIONE": "Mensola in lamiera, a 3 ganci, verniciata bianco RAL 9010, per piano lamiera P 30 cm",
+    "PREZZO": "€ 4,78"
+  },
+  {
+    "CODICE": 4360026,
+    "DESCRIZIONE": "Mensola in lamiera, a 4 ganci, verniciata bianco RAL 9010, per piano lamiera P 40 cm",
+    "PREZZO": "€ 4,23"
+  },
+  {
+    "CODICE": 4360028,
+    "DESCRIZIONE": "Mensola in lamiera, a 4 ganci, verniciata bianco RAL 9010, per piano lamiera P 50 cm",
+    "PREZZO": "€ 3,95"
+  },
+  {
+    "CODICE": 4360030,
+    "DESCRIZIONE": "Mensola in lamiera, a 4 ganci, verniciata bianco RAL 9010, per piano lamiera P 60 cm",
+    "PREZZO": "€ 5,15"
+  }
+                        ]
+                    }
+                },
+                "PORTAPREZZI": {
+                    "categorie": {
+
+                        "PORTAPREZZI": [
+                            {
+    "CODICE": "MPS.42.0742.GL",
+    "DESCRIZIONE": "Porta scanner in PVC colore Giallo, per ripiano in lamiera L 75 x H 3,9 cm",
+    "PREZZO": "€ 1,91"
+  },
+  {
+    "CODICE": "MPS.42.0992.GL",
+    "DESCRIZIONE": "Porta scanner in PVC colore Giallo, per ripiano in lamiera L 100 x H 3,9 cm",
+    "PREZZO": "€ 2,44"
+  },
+  {
+    "CODICE": "MPS.42.1318.GL",
+    "DESCRIZIONE": "Porta scanner in PVC colore Giallo, per ripiano in lamiera L 131,8 x H 3,9 cm",
+    "PREZZO": "€ 2,71"
+  },
+  {
+    "CODICE": "MPS.42.0742.RO",
+    "DESCRIZIONE": "Porta scanner in PVC colore Rosa, per ripiano in lamiera L 75 x H 3,9 cm",
+    "PREZZO": "€ 1,91"
+  },
+  {
+    "CODICE": "MPS.42.0992.RO",
+    "DESCRIZIONE": "Porta scanner in PVC colore Rosa, per ripiano in lamiera L 100 x H 3,9 cm",
+    "PREZZO": "€ 2,44"
+  },
+  {
+    "CODICE": "MPS.42.1318.RO",
+    "DESCRIZIONE": "Porta scanner in PVC colore Rosa, per ripiano in lamiera L 131,8 x H 3,9 cm",
+    "PREZZO": "€ 2,71"
+  },
+  {
+    "CODICE": "MPS.42.0742.BL",
+    "DESCRIZIONE": "Porta scanner in PVC colore Blu, per ripiano in lamiera L 75 x H 3,9 cm",
+    "PREZZO": "€ 1,68"
+  },
+  {
+    "CODICE": "MPS.42.0992.BL",
+    "DESCRIZIONE": "Porta scanner in PVC colore Blu, per ripiano in lamiera L 100 x H 3,9 cm",
+    "PREZZO": "€ 2,15"
+  },
+  {
+    "CODICE": "MPS.42.0259.GL",
+    "DESCRIZIONE": "Porta scanner in PVC colore Giallo, per ripiano in Lamiera P 30 cm Ang. Int. 45°",
+    "PREZZO": "€ 2,53"
+  },
+  {
+    "CODICE": "MPS.42.0183.RO",
+    "DESCRIZIONE": "Porta scanner in PVC colore Rosa, per ripiano in Lamiera P 40 cm Ang. Int. 45°",
+    "PREZZO": "€ 2,53"
+  },
+  {
+    "CODICE": "MPS.42.0183.BL",
+    "DESCRIZIONE": "Porta scanner in PVC colore Blu, per ripiano in Lamiera P 40 cm Ang. Int. 45°",
+    "PREZZO": "€ 2,90"
+  },
+  {
+    "CODICE": "MPS.42.0106.GL",
+    "DESCRIZIONE": "Porta scanner in PVC colore Giallo, per ripiano in Lamiera P 50 cm Ang. Int. 45°",
+    "PREZZO": "€ 2,53"
+  },
+  {
+    "CODICE": "MPS.42.0106.RO",
+    "DESCRIZIONE": "Porta scanner in PVC colore Rosa, per ripiano in Lamiera P 50 cm Ang. Int. 45°",
+    "PREZZO": "€ 2,53"
+  },
+  {
+    "CODICE": "MPS.42.0106.BL",
+    "DESCRIZIONE": "Porta scanner in PVC colore Blu, per ripiano in Lamiera P 50 cm Ang. Int. 45°",
+    "PREZZO": "€ 2,53"
+  },
+  {
+    "CODICE": "MPS.42.0464.GL",
+    "DESCRIZIONE": "Porta scanner in PVC colore Giallo, per ripiano in lamiera Ang. EST. 45° da P 50 cm",
+    "PREZZO": "€ 2,53"
+  },
+  {
+    "CODICE": "MPS.42.0464.RO",
+    "DESCRIZIONE": "Porta scanner in PVC colore Rosa, per ripiano in lamiera Ang. EST. 45° da P 50 cm, tagliato",
+    "PREZZO": "€ 2,70"
+  },
+  {
+    "CODICE": "MPS.42.0030.GL",
+    "DESCRIZIONE": "Porta scanner in PVC colore Giallo, per ripiano in Lamiera P 60 cm Ang. Int. 45°",
+    "PREZZO": "€ 2,53"
+  },
+  {
+    "CODICE": "MPS.42.0030.RO",
+    "DESCRIZIONE": "Porta scanner in PVC colore Rosa, per ripiano in Lamiera P 60 cm Ang. Int. 45°",
+    "PREZZO": "€ 2,53"
+  },
+  {
+    "CODICE": "GLS39.0740.T",
+    "DESCRIZIONE": "Profilo porta prezzo in PVC L 740 x H39 mm - Trasparente (per ripiano in vetro)",
+    "PREZZO": "€ 1,54"
+  },
+  {
+    "CODICE": "GLS39.0990.T",
+    "DESCRIZIONE": "Profilo porta prezzo in PVC L 990 x H39 mm - Trasparente (per ripiano in vetro)",
+    "PREZZO": "€ 2,02"
+  },
+  {
+    "CODICE": "GLS39.0075.T",
+    "DESCRIZIONE": "Profilo porta prezzo in PVC L 75 x H39 mm - Trasparente (per ripiano in vetro)",
+    "PREZZO": "€ 0,35"
+  },
+  {
+    "CODICE": "GLS3.P.0070",
+    "DESCRIZIONE": "PROFILO PORTAPREZZI SLIM IN PLASTICA TRASPARENTE H.20MM L.70MM PER RIPIANO IN LEGNO COMPLETO DI FORO CENTRALE.",
+    "PREZZO": "€ 0,48"
+  },
+  {
+    "CODICE": "HE39.105°.0740.A&S",
+    "DESCRIZIONE": "Profilo porta prezzo in PVC L 740 x H 39 mm - Trasparente (per ripiano in legno) con fori  P002521.740",
+    "PREZZO": "€ 2,23"
+  },
+  {
+    "CODICE": "HE39.105°.0990.A&S",
+    "DESCRIZIONE": "Profilo porta prezzo in PVC L 990 x H 39 mm - Trasparente (per ripiano in legno) con fori P002521.990",
+    "PREZZO": "€ 2,86"
+  },
+  {
+    "CODICE": "HE39.105°.0075.A&S",
+    "DESCRIZIONE": "Profilo porta prezzo in PVC L 75 x H 39 mm - Trasparente (per ripiano in legno) con fori.......",
+    "PREZZO": "€ 0,20"
+  },
+  {
+    "CODICE": "GLS1.P.0740",
+    "DESCRIZIONE": "Porta scanner in PVC trasparente mod. \"SLIM\" per ripiano in vetro L 74 x H 2 cm",
+    "PREZZO": "€ 1,49"
+  },
+  {
+    "CODICE": "GLS1.P.0990",
+    "DESCRIZIONE": "Porta scanner in PVC trasparente mod. \"SLIM\" per ripiano in vetro L 99 x H 2 cm",
+    "PREZZO": "€ 2,02"
+  },
+  {
+    "CODICE": "GLS3.P.0740",
+    "DESCRIZIONE": "Porta scanner in PVC trasparente mod. \"SLIM\" per ripiano in legno con fori L 74 x H 2 cm",
+    "PREZZO": "€ 2,07"
+  },
+  {
+    "CODICE": "GLS3.P.0990",
+    "DESCRIZIONE": "Porta scanner in PVC trasparente mod. \"SLIM\" per ripiano in legno con fori L 99 x H 2 cm",
+    "PREZZO": "€ 2,76"
+  },
+  {
+    "CODICE": "GLS1.P.0045",
+    "DESCRIZIONE": "PROFILO PORTAPREZZI SLIM IN PLASTICA TRASPARENTE H.20mm L.45mm PER RIPIANO IN VETRO BASSO.\nIN CONFEZIONI DA 100pz",
+    "PREZZO": "€ 0,08"
+  },
+ {
+    "CODICE": "DRA39.1102.055",
+    "DESCRIZIONE": "Porta scanner in PVC,  Trasparente, per  in filo L 5,5 x H 3,9 cm",
+    "PREZZO": "€ 0,22"
+  },
+  {
+    "CODICE": "DRA39.1102",
+    "DESCRIZIONE": "Porta scanner in PVC,  Trasparente, per  in filo L 7,5 x H 3,9 cm",
+    "PREZZO": "€ 0,21"
+  }
+                        ]
+                    }
+                },
+                "DIVISORI E FRONTALINI": {
+                    "categorie": {
+
+                        "DIVISORI-FRONTALINI": [
+                            {
+    "CODICE": 4586432,
+    "DESCRIZIONE": "Divisorio in filo cromato H14 cm per ripiano in lamiera forato P 40 cm",
+    "PREZZO": "€ 3,48"
+  },
+  {
+    "CODICE": 4586428,
+    "DESCRIZIONE": "Divisorio in filo cromato H14 cm per ripiano in lamiera forato P 50 cm",
+    "PREZZO": "€ 3,93"
+  },
+  {
+    "CODICE": 4586430,
+    "DESCRIZIONE": "Divisorio in filo cromato H14 cm per ripiano in lamiera forato P 60 cm",
+    "PREZZO": "€ 5,59"
+  },
+  {
+    "CODICE": 4586402,
+    "DESCRIZIONE": "Frontale filo cromato per ripiano forato lamiera L 750 cm",
+    "PREZZO": "€ 5,97"
+  },
+  {
+    "CODICE": 4586404,
+    "DESCRIZIONE": "Frontale filo cromato per ripiano forato lamiera L 1000 cm",
+    "PREZZO": "€ 7,11"
+  },
+  {
+    "CODICE": 4586406,
+    "DESCRIZIONE": "Frontale filo cromato per ripiano forato lamiera L 750 H30 mm",
+    "PREZZO": "€ 3,67"
+  },
+  {
+    "CODICE": 4586408,
+    "DESCRIZIONE": "Frontale filo cromato per ripiano forato lamiera L 1000 H30 mm",
+    "PREZZO": "€ 4,67"
+  }
+                        ]
+                    }
+                },
+                "BARRE": {
+                    "categorie": {
+
+                        "BARRE": [
+                            { "codice": "5007020", "descrizione": "BARRA 750mm", "colore": "CROMATE", "prezzo": 10.68 },
+                            { "codice": "5007022", "descrizione": "BARRA 1000mm", "colore": "CROMATE", "prezzo": 12.90 },
+                            { "codice": "5007024", "descrizione": "BARRA 1330mm", "colore": "CROMATE", "prezzo": 17.25 },
+{
+    "CODICE": 5007022,
+    "DESCRIZIONE": "Barra frontale cromata L 100 x P 2 x H 3,5 cm",
+    "PREZZO": "€ 12,90"
+  },
+  {
+    "CODICE": 5007024,
+    "DESCRIZIONE": "Barra frontale cromata 35x20 L 1330",
+    "PREZZO": "€ 17,25"
+  }
+                        ],
+                        
+  {
+    "CODICE": 5007020,
+    "DESCRIZIONE": "Barra frontale cromata L 75 x P 2 x H 3,5 cm",
+    "PREZZO": "€ 10,68"
+  }
+                        ]
+                    }
+                },
+                "GANCI": {
+                    "categorie": {
+
+                        "GANCI": [
+                            {
+    "CODICE": 5007026.1,
+    "DESCRIZIONE": "Gancio cromato a barra rettangolare L 30 cm, diam. 0,6 cm (50 x cartone) efficientato",
+    "PREZZO": "€ 2,62"
+  },
+  {
+    "CODICE": 5007028.1,
+    "DESCRIZIONE": "Gancio cromato a barra rettangolare L 40 cm, diam. 0,6 cm (50 x cartone) efficientato",
+    "PREZZO": "€ 2,68"
+  },
+  {
+    "CODICE": 5007012.1,
+    "DESCRIZIONE": "Gancio cromato a barra rettangolare L 40 cm, diam. 0,8 cm (50 x cartone) efficientato",
+    "PREZZO": "€ 3,00"
+  },
+  {
+    "CODICE": 5007010.1,
+    "DESCRIZIONE": "Gancio cromato a barra rettangolare L 30 cm, diam. 0,8 cm (50 x cartone) efficientato",
+    "PREZZO": "€ 2,71"
+  },
+  {
+    "CODICE": 5007008.1,
+    "DESCRIZIONE": "Gancio cromato a barra rettangolare L 20 cm, diam. 0,8 cm (50 x cartone) efficientato",
+    "PREZZO": "€ 2,72"
+  }
+                        ]
+                    }
+                },
+                "COPRIBASE-COPRIMONTANTE": {
+                    "categorie": {
+                        "COPRIBASE-COPRIMONTANTE": [
+                            {
+    "CODICE": 4247660,
+    "DESCRIZIONE": "Copribase dx in lamiera verniciata colore Ral 9006 Silver da L 40 cm per base in legno",
+    "PREZZO": "€ 6,06"
+  },
+  {
+    "CODICE": 4247661,
+    "DESCRIZIONE": "Copribase sx in lamiera verniciata colore Ral 9006 Silver da L 40 cm per base in legno",
+    "PREZZO": "€ 6,06"
+  },
+  {
+    "CODICE": 5007790,
+    "DESCRIZIONE": "Coprimontante gondola in lamiera verniciata Ral 9006 Silver -  H 165 cm",
+    "PREZZO": "€ 16,05"
+  },
+  {
+    "CODICE": 5007796,
+    "DESCRIZIONE": "Coprimontante gondola in lamiera verniciata Ral 9006 Silver -  H 240 cm",
+    "PREZZO": "€ 26,29"
+  },
+  {
+    "CODICE": "5007790C",
+    "DESCRIZIONE": "Coprimontante gondola in lamiera verniciata Ral 9006 Silver -  H 25 cm",
+    "PREZZO": "€ 11,87"
+  },
+  {
+    "CODICE": "5007790D",
+    "DESCRIZIONE": "Coprimontante gondola in lamiera verniciata Ral 9006 Silver -  H 43 cm",
+    "PREZZO": "€ 17,51"
+  },
+]
+                    }
+                },
+                "KIT RIPIANI VETRO E RIPIANI VETRO": {
+                    "categorie": {
+
+"KIT RIPIANI VETRO - RIPIANI VETRO": [
+                             {
+    "CODICE": "5007A120 (KIT)",
+    "DESCRIZIONE": "Ripiano in vetro con mensola normale L 75 x P 40 x H 0,8 cm",
+    "PREZZO": "€ 20,00"
+  },
+  {
+    "CODICE": "1-5007A120",
+    "DESCRIZIONE": "Ripiano in Vetro  L 75 x P 40 x H 0,8 cm",
+    "PREZZO": "€ 14,48"
+  },
+  {
+    "CODICE": "5007A121 (KIT)",
+    "DESCRIZIONE": "Ripiano in vetro con mensola normale L 100 x P 40 x H 0,8 cm",
+    "PREZZO": "€ 24,20"
+  },
+  {
+    "CODICE": "1-5007A121",
+    "DESCRIZIONE": "Ripiano in Vetro  L 100 x P 40 x H 0,8 cm",
+    "PREZZO": "€ 18,68"
+  },
+  {
+    "CODICE": "5007A125 (KIT)",
+    "DESCRIZIONE": "Ripiano in vetro P 40 per Ang. Int. 90° con mensola normale",
+    "PREZZO": "€ 86,79"
+  },
+  {
+    "CODICE": "1-5007A125",
+    "DESCRIZIONE": "Ripiano in vetro P 40 cm per Ang. Int. 90°",
+    "PREZZO": "€ 75,75"
+  },
+  {
+    "CODICE": "5007A127 (KIT)",
+    "DESCRIZIONE": "RIPIANO IN VETRO TEMPERATO TRASPARENTE SP. 8MM  PROF. 355 MM ANG. ESTERNO GONDOLA 45° COMPLETO DI MENSOLE E VENTOSE (DIS.AS1012B + 5007A120.MENS)",
+    "PREZZO": "€ 18,95"
+  },
+  {
+    "CODICE": "5007A126 (KIT)",
+    "DESCRIZIONE": "RIPIANO IN VETRO TEMPERATO TRASPARENTE SP. 8MM  PROF. 400 MM ANG. ESTERNO GONDOLA 45° COMPLETO DI MENSOLE E VENTOSE (DIS.AS1033C+ 5007A120.MENS)",
+    "PREZZO": "€ 49,30"
+  },
+    {
+    "CODICE": "5007A120.MENS",
+    "DESCRIZIONE": "coppia mensole dx/sx per ripiano in vetro P 40 cm verniciato 9010 axalta",
+    "PREZZO": "€ 5,12"
+  },
+,
+  {
+    "CODICE": "5007A110 (KIT)",
+    "DESCRIZIONE": "Ripiano in vetro L 75 x P 30 x H 0,8 cm con mensola P 15 cm",
+    "PREZZO": "€ 19,00"
+  },
+  {
+    "CODICE": 4326022,
+    "DESCRIZIONE": "Ripiano in vetro L 75 x P 30 cm",
+    "PREZZO": "€ 13,60"
+  },
+  {
+    "CODICE": "5007A111 (KIT)",
+    "DESCRIZIONE": "Ripiano in vetro L 100 x P 30 cm con mensola P 15 cm",
+    "PREZZO": "€ 22,40"
+  },
+  {
+    "CODICE": 4326024,
+    "DESCRIZIONE": "Ripiano in vetro L 100 x P 30 cm",
+    "PREZZO": "€ 17,00"
+  },
+  {
+    "CODICE": "5007A112 (KIT)",
+    "DESCRIZIONE": "PIANO IN VETRO COMPLETO DI COPPIA MENSOLE SPECIALI CON FERMO",
+    "PREZZO": "€ 0,00"
+  },
+  {
+    "CODICE": "1-5007A112",
+    "DESCRIZIONE": "RIPIANO IN VETRO TEMPERATO TRASPARENTE SP. 8MM  DIM. 748X120 MM",
+    "PREZZO": "€ 0,00"
+  },
+  {
+    "CODICE": "5007A115 (KIT)",
+    "DESCRIZIONE": "Ripiano in vetro P 30 cm per Ang. Int. 90° con mensola P 15 cm",
+    "PREZZO": "€ 49,71"
+  },
+  {
+    "CODICE": "1-5007A115",
+    "DESCRIZIONE": "Ripiano in vetro P 30 cm per Ang. Int. 90°",
+    "PREZZO": "€ 38,91"
+  },
+  {
+    "CODICE": "5007A114 (KIT)",
+    "DESCRIZIONE": "Ripiano in vetro P 30 cm per Ang. Int. 45° con mensola P 15 cm",
+    "PREZZO": "57,11"
+  },
+  {
+    "CODICE": "4326204/0",
+    "DESCRIZIONE": "Ripiano in vetro P 30 cm per Ang. Int. 45°",
+    "PREZZO": "€ 51,71"
+  },
+  {
+    "CODICE": "5007A116 (KIT)",
+    "DESCRIZIONE": "Ripiano in vetro P 30 cm per Ang. Est. 45° con mensola P 15 cm",
+    "PREZZO": "€ 51,21"
+  },
+  {
+    "CODICE": 4326244,
+    "DESCRIZIONE": "Ripiano in vetro P 30 cm per Ang. Est. 45°",
+    "PREZZO": "€ 37,00"
+  },
+  {
+    "CODICE": "5007A110.MENS",
+    "DESCRIZIONE": "coppia mensola dx/sx per ripiano in vetro P 30 cm - in lamiera verniciata bianco Ral 9010",
+    "PREZZO": "€ 5,00"
+  }
+]
+                    }
+                },
+                "MONTANTI E ACCESSORI": {
+                    "categorie": {
+
+                        "MONTANTI E ACCESSORI": [
+                             {
+    "CODICE": 4200212,
+    "DESCRIZIONE": "Montante sagomato verniciato bianco RAL 9010  P 90 x H 2371 mm (detto 9x240)",
+    "PREZZO": "€ 37,07"
+  },
+  {
+    "CODICE": 4200012,
+    "DESCRIZIONE": "Montante sagomato verniciato bianco RAL 9010  P 45 x H 2371 mm (detto 4,5x240)",
+    "PREZZO": "€ 20,56"
+  },
+  {
+    "CODICE": 4209714,
+    "DESCRIZIONE": "Montante sagomato verniciato bianco RAL 9010  P 90 x H 2263 mm (detto 9x230)",
+    "PREZZO": "€ 35,85"
+  },
+  {
+    "CODICE": 4209514,
+    "DESCRIZIONE": "Montante sagomato verniciato bianco RAL 9010  P 45 x H 2263 mm (detto 4,5x230)",
+    "PREZZO": "€ 23,23"
+  },
+  {
+    "CODICE": 5007764,
+    "DESCRIZIONE": "Montante sagomato verniciato bianco RAL 9010  P 90 x H 2083 mm (detto 9x210)",
+    "PREZZO": "€ 31,80"
+  },
+  {
+    "CODICE": 5007760,
+    "DESCRIZIONE": "Montante sagomato verniciato bianco RAL 9010  P 45 x H 2083 mm (detto 4,5x210)",
+    "PREZZO": "€ 16,03"
+  },
+  {
+    "CODICE": 5007774,
+    "DESCRIZIONE": "Montante sagomato verniciato bianco RAL 9010  P 90 x H 1651 mm (detto 9x165)",
+    "PREZZO": "€ 25,24"
+  },
+  {
+    "CODICE": 5007770,
+    "DESCRIZIONE": "Montante sagomato verniciato bianco RAL 9010  P 45 x H 1651 mm (detto 4,5x165)",
+    "PREZZO": "€ 13,26"
+  },
+  {
+    "CODICE": 4200544,
+    "DESCRIZIONE": "Prolunga per montante sagomato verniciata bianco RAL 9010  P 90 x H 250 mm",
+    "PREZZO": "€ 15,15"
+  },
+  {
+    "CODICE": 5007780,
+    "DESCRIZIONE": "Prolunga per montante sagomato verniciata bianco RAL 9010  P 45 x H 250 mm",
+    "PREZZO": "€ 9,81"
+  },
+  {
+    "CODICE": 4200546,
+    "DESCRIZIONE": "Prolunga per montante sagomato verniciata bianco RAL 9010  P 90 x H 431 mm",
+    "PREZZO": "€ 20,45"
+  },
+  {
+    "CODICE": 5007782,
+    "DESCRIZIONE": "Prolunga per montante sagomato verniciata bianco RAL 9010  P 45 x H 431 mm",
+    "PREZZO": "€ 13,88"
+  },
+  {
+    "CODICE": 4200750,
+    "DESCRIZIONE": "Tappo per montante P 9 cm in lamiera verniciata bianco Ral 9010 AXALTA",
+    "PREZZO": "€ 1,12"
+  },
+  {
+    "CODICE": "4200750.PA",
+    "DESCRIZIONE": "Tappo per montante P 9 cm in nylon RAL 9010",
+    "PREZZO": "€ 0,80"
+  }
+                        ]
+                    }
+                },
+                "SPALLE PROFUMERIA": {
+                    "categorie": {
+
+                        "SPALLE PROFUMERIA": [
+                            {
+    "CODICE": 4240816,
+    "DESCRIZIONE": "Coppia di semibasi (dx/sx) in lamiera verniciata bianco Ral 9010 per ripiano legno da P 40 cm",
+    "PREZZO": "€ 17,24"
+  },
+  {
+    "CODICE": "5007711 (KIT)",
+    "DESCRIZIONE": "FIANCATA DIRITTA LATER. 260X40 BORDO ABS - SX",
+    "PREZZO": "€ 132,60"
+  },
+  {
+    "CODICE": "5007710 (KIT)",
+    "DESCRIZIONE": "FIANCATA DIRITTA LATER. 260X40 BORDO ABS - DX",
+    "PREZZO": "€ 132,60"
+  },
+  {
+    "CODICE": "5007720 (KIT)",
+    "DESCRIZIONE": "FIANCATA DIRITTA LATER. 260X40 BORDO ABS - CENTRALE",
+    "PREZZO": "€ 160,37"
+  }
+
+                        ]
+                    }
+                },
+                "BASI": {
+                    "categorie": {
+
+                        "BASI": [
+                            {
+    "CODICE": 4240020,
+    "DESCRIZIONE": "Base in lamiera verniciata bianca Ral 9010 per ripiano in metallo da P 40 cm",
+    "PREZZO": "€ 18,46"
+  },
+  {
+    "CODICE": 4240024,
+    "DESCRIZIONE": "Base in lamiera verniciata bianca Ral 9010 per ripiano in metallo da P 50 cm",
+    "PREZZO": "€ 11,93"
+  },
+  {
+    "CODICE": 4240022,
+    "DESCRIZIONE": "Base in lamiera verniciata bianca Ral 9010 per ripiano in metallo da P 30 cm",
+    "PREZZO": "€ 33,50"
+  },
+  {
+    "CODICE": 4240026,
+    "DESCRIZIONE": "Base in lamiera verniciata bianca Ral 9010 per ripiano in metallo da P 60 cm",
+    "PREZZO": "€ 22,40"
+  },
+  {
+    "CODICE": 4240216,
+    "DESCRIZIONE": "Base in lamiera verniciata bianca Ral 9010 per ripiano in legno da P 40 cm",
+    "PREZZO": "€ 15,95"
+  },
+  {
+    "CODICE": "VIT.0062",
+    "DESCRIZIONE": "PIEDINO REGOLABILE CON VITE GIREVOLE M10X60 PER BASI IN LAMIERA",
+    "PREZZO": "€ 0,00"
+  },
+  {
+    "CODICE": 4240402,
+    "DESCRIZIONE": "Kit ag base zincato",
+    "PREZZO": "€ 2,30"
+  },
+,
+  {
+    "CODICE": 4240403,
+    "DESCRIZIONE": "Kit piastra per montante da 90mm con piedino regolabile senza base",
+    "PREZZO": "€ 3,10"
+  },
+  {
+    "CODICE": "AS2027.45",
+    "DESCRIZIONE": "PIASTRA IN FERRO GREZZO PER MONTANTE DA 45 MM CON SCASSO ESAGONALEPER INSERTO M10,COMPLETA DI INSERTO ESAGONALE M10 UNI 9203 TESTA PIATTA E VITE TE M10X60 UNI5737 (NS. DIS. AS2027.45)",
+    "PREZZO": "€ 12,90"
+  },
+  {
+    "CODICE": "AC.AR.BS.ME.0001",
+    "DESCRIZIONE": "Kit aggancio base zincato con anti sgancio",
+    "PREZZO": "€ 2,57"
+  }
+                        ]
+                    }
+                },
+                "ZOCCOLI IN LAMIERA": {
+                    "categorie": {
+                        "ZOCCOLI IN LMIERA": [
+                            {
+    "CODICE": 4247010,
+    "DESCRIZIONE": "Zoccolo in lamiera verniciata bianco Ral 9010  L 75 x H 10",
+    "PREZZO": "€ 9,72"
+  },
+  {
+    "CODICE": 4247110,
+    "DESCRIZIONE": "Zoccolo in lamiera verniciata bianco Ral 9010  L 100 x H 10",
+    "PREZZO": "€ 9,96"
+  },
+  {
+    "CODICE": "42.470.109.006",
+    "DESCRIZIONE": "Zoccolo in lamiera verniciata grigio silver Ral 9006  L 75 x H 10 (per ristrutturazioni)",
+    "PREZZO": "€ 9,72"
+  },
+  {
+    "CODICE": "42.471.109.006",
+    "DESCRIZIONE": "Zoccolo in lamiera verniciata grigio silver Ral 9006  L 100 x H 10 (per ristrutturazioni)",
+    "PREZZO": "€ 9,96"
+  },
+  {
+    "CODICE": "4247110.AI45.40",
+    "DESCRIZIONE": "Zoccolo in lamiera verniciata bianco Ral 9010 H 10 cm per Ang. Int. 45° per Base P 40 cm",
+    "PREZZO": "€ 4,70"
+  },
+  {
+    "CODICE": "4247110.AI45.50",
+    "DESCRIZIONE": "Zoccolo in lamiera verniciata bianco Ral 9010 H 10 cm per Ang. Int. 45° per Base P 50 cm",
+    "PREZZO": "€ 4,90"
+  },
+  {
+    "CODICE": "42.470.107.035",
+    "DESCRIZIONE": "Zoccolo in lamiera verniciata Grigio chiaro Ral 7035  L 75 x H 10",
+    "PREZZO": "€ 10,15"
+  },
+  {
+    "CODICE": "42.471.107.035",
+    "DESCRIZIONE": "Zoccolo in lamiera verniciata grigio chiaro Ral 7035  L 100 x H 10",
+    "PREZZO": "€ 10,40"
+  },
+  {
+    "CODICE": 4247510,
+    "DESCRIZIONE": "Zoccolo in lamiera verniciata bianco Ral 9010 H 11 cm S/Base da L 75 cm",
+    "PREZZO": "€ 13,58"
+  },
+  {
+    "CODICE": 4247520,
+    "DESCRIZIONE": "Zoccolo in lamiera verniciata bianco Ral 9010 H 11 cm S/Base da L 100 cm",
+    "PREZZO": "€ 12,93"
+  }
+                        ]
+                    }
+                },
+                "SCHIENALI": {
+                    "categorie": {
+                        "SCHIENALI": [
+                            {
+    "CODICE": 4280002,
+    "DESCRIZIONE": "Schienale (fondale) in lamiera verniciato bianco Ral 9010 L 75 x H 11 cm",
+    "PREZZO": "€ 5,54"
+  },
+  {
+    "CODICE": 4280004,
+    "DESCRIZIONE": "Schienale (fondale) in lamiera verniciato bianco Ral 9010 L 100 x H 11 cm",
+    "PREZZO": "€ 6,22"
+  },
+  {
+    "CODICE": 4280005,
+    "DESCRIZIONE": "Schienale (fondale) in lamiera verniciato bianco Ral 9010 per Ang. Int. 90° H  11 cm",
+    "PREZZO": "€ 7,73"
+  },
+  {
+    "CODICE": 4280443,
+    "DESCRIZIONE": "Schienale (fondale) in lamiera verniciato bianco bucciato Ral 9010 per Ang. Est. 45° H 11cm",
+    "PREZZO": "€ 7,25"
+  },
+  {
+    "CODICE": 4280022,
+    "DESCRIZIONE": "Schienale (fondale) in lamiera verniciato bianco Ral 9010 L 75 x H 25 cm",
+    "PREZZO": "€ 8,01"
+  },
+  {
+    "CODICE": 4280024,
+    "DESCRIZIONE": "Schienale (fondale) in lamiera verniciato bianco Ral 9010 L 100 x H 25 cm",
+    "PREZZO": "€ 8,64"
+  },
+  {
+    "CODICE": 4280026,
+    "DESCRIZIONE": "Schienale (fondale) in lamiera verniciato bianco Ral 9010 L 133 x H 25 cm",
+    "PREZZO": "€ 10,18"
+  },
+  {
+    "CODICE": 4280404,
+    "DESCRIZIONE": "Schienale (fondale) in lamiera verniciato bianco Ral 9010 per Ang. Int. H 25 cm",
+    "PREZZO": "€ 8,88"
+  },
+  {
+    "CODICE": 4280444,
+    "DESCRIZIONE": "Schienale (fondale) in lamiera verniciato bianco bucciato Ral 9010 per Ang. Est. 45° H 25cm",
+    "PREZZO": "€ 7,62"
+  },
+  {
+    "CODICE": 4280484,
+    "DESCRIZIONE": "Schienale (fondale) in lamiera verniciato bianco bucciato Ral 9010 per Ang. Est. Gondola 45° H 25cm",
+    "PREZZO": "€ 0,00"
+  },
+  {
+    "CODICE": 4280032,
+    "DESCRIZIONE": "Schienale (fondale) in lamiera verniciato bianco Ral 9010 L 75 x H 43 cm",
+    "PREZZO": "€ 9,05"
+  },
+  {
+    "CODICE": 4280034,
+    "DESCRIZIONE": "Schienale (fondale) in lamiera verniciato bianco Ral 9010 L 100 x H 43 cm",
+    "PREZZO": "€ 11,34"
+  },
+  {
+    "CODICE": 4280036,
+    "DESCRIZIONE": "Schienale (fondale) in lamiera verniciato bianco Ral 9010 L 133 x H 43 cm",
+    "PREZZO": "€ 16,86"
+  },
+  {
+    "CODICE": 4280406,
+    "DESCRIZIONE": "Schienale (fondale) in lamiera verniciato bianco Ral 9010 per Ang. Int. 45° H 43 cm",
+    "PREZZO": "€ 8,01"
+  },
+  {
+    "CODICE": 4280486,
+    "DESCRIZIONE": "Schienale (fondale) in lamiera verniciato bianco bucciato Ral 9010 per Ang. Est. Gondola H 43 cm",
+    "PREZZO": "€ 57,55"
+  },
+  {
+    "CODICE": 4280446,
+    "DESCRIZIONE": "Schienale (fondale) in lamiera verniciato bianco bucciato Ral 9010 per Ang. Est. H 43 cm",
+    "PREZZO": "€ 6,65"
+  }
+                             }
+                },
+                "COPRIFILO": {
+                    "categorie": {
+                        "COPRIFILO": [
+                            {
+    "CODICE": 4440022,
+    "DESCRIZIONE": "Coprifilo per gondola in lamiera verniciata bianco Ral 9010  L 75 cm - spessore 8/10 mm",
+    "PREZZO": "€ 5,40"
+  },
+  {
+    "CODICE": 4440024,
+    "DESCRIZIONE": "Coprifilo per gondola in lamiera verniciata bianco Ral 9010  L 100 cm - spessore 8/10 mm",
+    "PREZZO": "€ 5,07"
+  },
+  {
+    "CODICE": "4440022SPEC",
+    "DESCRIZIONE": "Coprifilo per gondola in lamiera verniciata bianco Ral 9010  L 75 cm - spessore 15/10 mm (skin care)",
+    "PREZZO": "€ 8,03"
+  },
+  {
+    "CODICE": "4440024SPEC",
+    "DESCRIZIONE": "Coprifilo per gondola in lamiera verniciata bianco Ral 9010  L 100 cm - spessore 15/10 mm (skin care)",
+    "PREZZO": "€ 8,84"
+  },
+  {
+    "CODICE": 4440028,
+    "DESCRIZIONE": "COPRIFILO PER TESTATA GONDOLA IN LAMIERA PASSO 750X95.2 - SP. 20/10 MM VERNICIATO BIANCO RAL 9010 BUCCIATO AXALTA (DIS. AS1045.750.TESTATA)",
+    "PREZZO": "€ 9,00"
+  },
+  {
+    "CODICE": 4440029,
+    "DESCRIZIONE": "COPRIFILO PER TESTATA GONDOLA IN LAMIERA PASSO 1000X102 - SP. 20/10 MM VERNICIATO BIANCO RAL 9010 BUCCIATO AXALTA (DIS. AS1045.1000.TESTATA)",
+    "PREZZO": "€ 10,80"
+  }
+                        ]
+                    }
+                },
+                "DISPLAY E ACCESSORI": {
+                    "categorie": {
+                        "DISPLAY E ACCESSORI": [
+                           {
+    "CODICE": "5007658.ST (KIT)",
+    "DESCRIZIONE": "Display luminoso superiore ANG. INT. 90°, verniciato bianco RAL 9010, dim. L 40 x P 7 x H 35 cm, completo di illuminazione a LED",
+    "PREZZO": "€ 98,30"
+  },
+  {
+    "CODICE": "5007658.PR.4010",
+    "DESCRIZIONE": "Profilo ad \"L\" in lamiera verniciata Fucsia Ral 4010 - L 39,6 cm",
+    "PREZZO": "€ 6,85"
+  },
+  {
+    "CODICE": "5007658.45.INT.ST",
+    "DESCRIZIONE": "Display luminoso superiore ANG. INT. 45° p.40, verniciato bianco RAL 9010, dim. L 27 x P  9 x H 35 cm, completo di illuminazione a LED (pannello opalino frontale 192x350H mm",
+    "PREZZO": "€ 89,68"
+  },
+  {
+    "CODICE": "5007658.INT.PR.4010",
+    "DESCRIZIONE": "Profilo ad \"L\" in lamiera verniciata Fucsia Ral 4010 - L 21,3 cm",
+    "PREZZO": "€ 3,73"
+  },
+  {
+    "CODICE": "5007658.45.EST.ST",
+    "DESCRIZIONE": "Display luminoso superiore ANG. EST. 45° p.40",
+    "PREZZO": "€ 77,71"
+  },
+  {
+    "CODICE": "5007658.EST.PR.4010",
+    "DESCRIZIONE": "Profilo ad \"L\" in lamiera verniciata Fucsia Ral 4010 - L 39,6 cm",
+    "PREZZO": "€ 6,85"
+  },
+  {
+    "CODICE": "5007660.ST",
+    "DESCRIZIONE": "Display luminoso superiore dim. L 75 x P 40 x H 35 cm, verniciato bianco Ral 9010",
+    "PREZZO": "€ 98,50"
+  },
+  {
+    "CODICE": "5007660.EST.PR.4010",
+    "DESCRIZIONE": "Profilo ad \"L\" in lamiera verniciata Fucsia Ral 4010 - L 74,9 cm",
+    "PREZZO": "€ 5,59"
+  },
+  {
+    "CODICE": "5007662.ST",
+    "DESCRIZIONE": "Display luminoso superiore dim. L 100 x P 40 x H 35 cm, verniciato bianco Ral 9010",
+    "PREZZO": "€ 104,50"
+  },
+  {
+    "CODICE": "5007662.PR.4010",
+    "DESCRIZIONE": "Profilo ad \"L\" in lamiera verniciata Fucsia Ral 4010 - L 99,9 cm",
+    "PREZZO": "€ 8,97"
+  },
+  {
+    "CODICE": "PAN.OP.01A",
+    "DESCRIZIONE": "PANNELLO OPALINO 3mm, RETTANGOLARE, mm994X110, DISEGNO AS1071.1000",
+    "PREZZO": "€ 10,00"
+  },
+  {
+    "CODICE": "PAN.OP.02A",
+    "DESCRIZIONE": "PANNELLO OPALINO 3mm, RETTANGOLARE, mm744X110, DISEGNO AS1071.750",
+    "PREZZO": "€ 8,00"
+  },
+  {
+    "CODICE": "PAN.OP.03A",
+    "DESCRIZIONE": "PANNELLO OPALINO 3mm, SAGOMATO PER ANG. INT. 90° prof. 40cm PROFUMERIA, mm479X93, DISEGNO AS1068",
+    "PREZZO": "€ 7,05"
+  },
+  {
+    "CODICE": "PAN.OP.03C",
+    "DESCRIZIONE": "PANNELLO OPALINO 3mm, SAGOMATO PER ANG. INT. 90° prof. 50cm PROFUMERIA, mm337X93, DISEGNO AS1068.410",
+    "PREZZO": "€ 6,80"
+  },
+  {
+    "CODICE": "PAN.OP.04A",
+    "DESCRIZIONE": "PANNELLO OPALINO 3mm, SAGOMATO PER ANG. EST. 45° PROFUMERIA, mm364X106,DISEGNO AS1069",
+    "PREZZO": "€ 16,20"
+  },
+  {
+    "CODICE": "PAN.OP.05A",
+    "DESCRIZIONE": "PANNELLO OPALINO 3mm, SAGOMATO PER ANG. INT. 45° PROFUMERIA, mm261x108, DISEGNO AS1070",
+    "PREZZO": "€ 16,20"
+  },
+  {
+    "CODICE": "44.810.264.010",
+    "DESCRIZIONE": "Coppia mensole per cappello luce (display luminoso) da 40cm - VERNICIATO RAL 4010 (FUCSIA) (solo Display da 50cm)",
+    "PREZZO": "€ 12,00"
+  },
+  {
+    "CODICE": "44.810.464.010",
+    "DESCRIZIONE": "Coppia mensole per cappello luce (display luminoso) da 40cm ang. int. 90° - VERNICIATO RAL 4010 (FUCSIA) (solo Display da 50cm)",
+    "PREZZO": "€ 13,50"
+  },
+  {
+    "CODICE": "44.810.244.010",
+    "DESCRIZIONE": "Coppia mensole per cappello luce da 30 - VERNICIATO RAL 4010 (FUCSIA)",
+    "PREZZO": "€ 10,01"
+  },
+  {
+    "CODICE": "44.810.444.010",
+    "DESCRIZIONE": "coppia mensole cappello luce ANG. INT. 90° da 30 - VERNICIATO RAL 4010 (FUCSIA)",
+    "PREZZO": "€ 7,90"
+  },
+  {
+    "CODICE": "4481044.45.INT.4010",
+    "DESCRIZIONE": "coppia mensole cappello luce ANG. INT. 45° da 30 - VERNICIATO RAL 4010 (FUCSIA)",
+    "PREZZO": "€ 7,90"
+  },
+  {
+    "CODICE": "4481044.45.EST.4010",
+    "DESCRIZIONE": "coppia mensole cappello luce ANG. EST. 45° da 30 - VERNICIATO RAL 4010 (FUCSIA)",
+    "PREZZO": "€ 15,10"
+  },
+  {
+    "CODICE": "44.837.904.010",
+    "DESCRIZIONE": "Ripiano di copertura per display \"auriga\" in nobilitato Fucsia Ral 4010 - Ang. Int. 90°",
+    "PREZZO": "€ 42,50"
+  },
+  {
+    "CODICE": "4483790.45.INT.4010",
+    "DESCRIZIONE": "Ripiano di copertura per display \"auriga\" in nobilitato Fucsia Ral 4010 - Ang. Int. 45°",
+    "PREZZO": "€ 46,37"
+  },
+  {
+    "CODICE": "4483790.45.EST.4010",
+    "DESCRIZIONE": "Ripiano di copertura per display \"auriga\" in nobilitato Fucsia Ral 4010 - Ang. Est. 45°",
+    "PREZZO": "€ 37,00"
+  },
+  {
+    "CODICE": "44.850.224.010",
+    "DESCRIZIONE": "Ripiano di copertura in nobilitato Fucsia Ral 4010 L 75 x P 30 cm",
+    "PREZZO": "€ 19,15"
+  },
+  {
+    "CODICE": "44.850.244.010",
+    "DESCRIZIONE": "Ripiano di copertura in nobilitato Fucsia Ral 4010 L 100 x P 30 cm",
+    "PREZZO": "€ 25,13"
+},  
+                      
+			]
+                    }
+                },
+
+                "SCHIENALI A SPECCHIO E LEGNO ": {
+                    "categorie": {
+                        "SCHIENALI A SPECCHIO E LEGNO":
+                        "SPECCHIO": [
+                            { "codice": "AS2220D.250.9010", "descrizione": "PROLUNGA 9X250MM BIANCA", "colore": "BIANCO RAL 9010", "prezzo": 36.73 },
+                            {
+    "CODICE": 5007450,
+    "DESCRIZIONE": "SCHIENALE A SPECCHIO DA 240X75",
+    "PREZZO": "€ 184,07"
+  },
+  {
+    "CODICE": 5007452,
+    "DESCRIZIONE": "SCHIENALE A SPECCHIO DA 240X100",
+    "PREZZO": "€ 232,13"
+  },
+  {
+    "CODICE": 5007454,
+    "DESCRIZIONE": "SCHIENALE A SPECCHIO DA 240xANG. INT. 45°",
+    "PREZZO": "€ 133,88"
+  },
+  {
+    "CODICE": 5007455,
+    "DESCRIZIONE": "SCHIENALE A SPECCHIO DA 240 x ANG. EST. 45°",
+    "PREZZO": "€ 80,10"
+  },
+  {
+    "CODICE": "5007445.AEG2245",
+    "DESCRIZIONE": "SCHIENALE A SPECCHIO DA 240 x ANG. EST. GONDOLA 45°",
+    "PREZZO": "€ 125,00"
+  },
+  {
+    "CODICE": 5007830,
+    "DESCRIZIONE": "SCHIENALE A SPECCHIO DA 208X75",
+    "PREZZO": "€ 157,26"
+  },
+  {
+    "CODICE": 5007832,
+    "DESCRIZIONE": "SCHIENALE A SPECCHIO DA 208X100",
+    "PREZZO": "€ 191,92"
+  },
+  {
+    "CODICE": 5007834,
+    "DESCRIZIONE": "SCHIENALE A SPECCHIO DA 208xANG. INT. 45°",
+    "PREZZO": "€ 121,05"
+  },
+  {
+    "CODICE": 5007820,
+    "DESCRIZIONE": "SCHIENALE A SPECCHIO DA 165X75",
+    "PREZZO": "€ 152,30"
+  },
+  {
+    "CODICE": 5007822,
+    "DESCRIZIONE": "SCHIENALE A SPECCHIO DA 165X100",
+    "PREZZO": "€ 185,50"
+  },
+  {
+    "CODICE": "5007450.A2",
+    "DESCRIZIONE": "SCHIENALE A SPECCHIO (PROLUNGA) CM 75 L X 43 H",
+    "PREZZO": "€ 66,62"
+  },
+  {
+    "CODICE": "5007452.A2",
+    "DESCRIZIONE": "SCHIENALE A SPECCHIO (PROLUNGA) PASSO CM 100 X 43 H",
+    "PREZZO": "€ 73,48"
+  },
+  {
+    "CODICE": "5007454.A2",
+    "DESCRIZIONE": "SCHIENALE A SPECCHIO (PROLUNGA) ANG. INT. 45° , CM 43 H",
+    "PREZZO": "€ 57,20"
+  },
+  {
+    "CODICE": "5007445.AEG.250",
+    "DESCRIZIONE": "SCHIENALE A SPECCHIO (PROLUNGA) ANG. INT. 45° , CM 25 H",
+    "PREZZO": "€ 56,20"
+  },
+  {
+    "CODICE": "5007450.B1",
+    "DESCRIZIONE": "SCHIENALE A SPECCHIO (PROLUNGA) CM 75 L X 25 H",
+    "PREZZO": "€ 61,26"
+  },
+  {
+    "CODICE": "5007452.B1",
+    "DESCRIZIONE": "SCHIENALE A SPECCHIO (PROLUNGA) CM 100 L X 25 H",
+    "PREZZO": "€ 64,30"
+  },
+  {
+    "CODICE": "5007823.C1",
+    "DESCRIZIONE": "SCHIENALE A SPECCHIO (PROLUNGA) CM 75 L X 59,7 H  (solo ristrutturazioni)",
+    "PREZZO": "€ 64,50"
+  },
+  {
+    "CODICE": "5007824.C1",
+    "DESCRIZIONE": "SCHIENALE A SPECCHIO (PROLUNGA) CM 100 L X 59,7 H  (solo ristrutturazioni)",
+    "PREZZO": "€ 64,50"
+  }
+                        ],
+                        "LEGNO": [
+                            {
+    "CODICE": 5007800,
+    "DESCRIZIONE": "SCHIENALE NOB. DA 165X75 BIANCO",
+    "PREZZO": "€ 50,85"
+  },
+  {
+    "CODICE": 5007802,
+    "DESCRIZIONE": "SCHIENALE NOB. DA 165X100 BIANCO",
+    "PREZZO": "€ 50,85"
+  },
+  {
+    "CODICE": "PA.LG.M.0132",
+    "DESCRIZIONE": "SCHIENALE NOB. DA 208X75 BIANCO",
+    "PREZZO": "€ 84,80"
+  },
+  {
+    "CODICE": "PA.LG.M.0131",
+    "DESCRIZIONE": "SCHIENALE NOB. DA 208X100 BIANCO",
+    "PREZZO": "€ 84,80"
+  },
+  {
+    "CODICE": "PA.LG.M.0099",
+    "DESCRIZIONE": "SCHIENALE NOB. DA 240X75 BIANCO",
+    "PREZZO": "€ 85,00"
+  },
+  {
+    "CODICE": "PA.LG.M.0100",
+    "DESCRIZIONE": "SCHIENALE NOB. DA 240X100 BIANCO",
+    "PREZZO": "€ 85,00"
+  },
+  {
+    "CODICE": "PA.LG.M.0078",
+    "DESCRIZIONE": "PROLUNGA SCHIENALE NOBILITATO BIANCO CM 75X25 H",
+    "PREZZO": "€ 43,70"
+  },
+  {
+    "CODICE": "PA.LG.M.0079",
+    "DESCRIZIONE": "PROLUNGA SCHIENALE NOBILITATO BIANCO CM 100X25 H",
+    "PREZZO": "€ 43,70"
+  },
+  {
+    "CODICE": "PA.LG.M.0096",
+    "DESCRIZIONE": "PROLUNGA SCHIENALE NOBIL. PASSO CM 75x43H COLORE BIANCO",
+    "PREZZO": "€ 45,75"
+  },
+  {
+    "CODICE": "PA.LG.M.0095",
+    "DESCRIZIONE": "PROLUNGA SCHIENALE NOBIL. PASSO CM 100x43H COLORE BIANCO",
+    "PREZZO": "€ 45,75"
+  },
+  {
+    "CODICE": "PA.LG.PEM.0001",
+    "DESCRIZIONE": "PROLUNGA PANNELLO IN NOBILITATO SP.25mm BIANCO OPACO DIM. 200X500mm,AS2 LATI BORDO CARTA BIANCO,INCLUSE 2 SPINE LEGNO Ø6X20 (DIS. AS1574)",
+    "PREZZO": "€ 31,50"
+  },
+  {
+    "CODICE": "SCHIENALE.LG.02",
+    "DESCRIZIONE": "SCHIENALE NOBILITATO GRIGIO CHIARO RAL 7035 DIM. Cm 75X165 H (OUTLET)",
+    "PREZZO": "€ 74,25"
+  },
+  {
+    "CODICE": "SCHIENALE.LG.01",
+    "DESCRIZIONE": "SCHIENALE NOBILITATO GRIGIO CHIARO RAL 7035 DIM. Cm 100X165 H (OUTLET)",
+    "PREZZO": "€ 74,25"
+  },
+  {
+    "CODICE": "SCHIENALE.LG.03",
+    "DESCRIZIONE": "SCHIENALE NOBILITATO DA 713x1993  GRIGIO SILVER RAL 7035 PER PARETE DA 75x210(DIS. AS2180GR.750) (OUTLET)",
+    "PREZZO": "€ 131,60"
+  },
+  {
+    "CODICE": "SCHIENALE.LG.04",
+    "DESCRIZIONE": "SCHIENALE NOBILITATO DA 963x1993  GRIGIO SILVER RAL 7035 PER PARETE DA 100x210 (DIS. AS2180GR.750) (OUTLET)",
+    "PREZZO": "€ 127,70"
+  },
+  {
+    "CODICE": "SCHIENALE.LG.05",
+    "DESCRIZIONE": "SCHIENALE NOBILITATO DA 713X1811 GRIGIO SILVER RAL 7035 PER PARETE DA 750x1930 (DIS. AS1572GR.750X1930) - per RISTRUTTURAZIONI",
+    "PREZZO": "€ 114,40"
+  },
+  {
+    "CODICE": "SCHIENALE.LG.06",
+    "DESCRIZIONE": "SCHIENALE NOBILITATO DA 963x1811  GRIGIO SILVER RAL 7035 PER PARETE DA 1000x1930 (DIS. AS1572GR.1000X1930) per RISTRUTTURAZIONI",
+    "PREZZO": "€ 114,40"
+  },
+  {
+    "CODICE": "PA.LG.M.0116",
+    "DESCRIZIONE": "SCHIENALE NOB. DA 240X75 grigio chiaro RAL 7035 (OUTLET)",
+    "PREZZO": "€ 131,50"
+  },
+  {
+    "CODICE": "PA.LG.M.0232",
+    "DESCRIZIONE": "SCHIENALE NOB. DA 240X100  grigio chiaro RAL 7035 (OUTLET)",
+    "PREZZO": "€ 131,50"
+  },
+  {
+    "CODICE": "PA.LG.M.0080",
+    "DESCRIZIONE": "PROLUNGA SCHIENALE NOBILITATO COLORE GRIGIO CHIARO SIMIL RAL 7035 PASSO CM 75X25 H",
+    "PREZZO": "€ 46,80"
+  },
+  {
+    "CODICE": "PA.LG.M.0081",
+    "DESCRIZIONE": "PROLUNGA SCHIENALE NOBILITATO COLORE GRIGIO CHIARO SIMIL RAL 7035 PASSO 100X25",
+    "PREZZO": "€ 46,80"
+  },
+  {
+    "CODICE": "PA.LG.M.0094",
+    "DESCRIZIONE": "PROLUNGA SCHIENALE NOBIL. PASSO 75x43H\nCOLORE GRIGIO CHIARO SIMIL RAL 7035",
+    "PREZZO": "€ 48,90"
+  },
+  {
+    "CODICE": "PA.LG.M.0093",
+    "DESCRIZIONE": "PROLUNGA SCHIENALE NOBIL. PASSO 100x43H\nCOLORE GRIGIO CHIARO SIMIL RAL 7035",
+    "PREZZO": "€ 48,90"
+  },
+{
+    "CODICE": "4284110.PA",
+    "DESCRIZIONE": "Piastra ag (ferma specchio) centrale",
+    "PREZZO": "€ 0,32"
+  },
+  {
+    "CODICE": "4284110.DX.PA",
+    "DESCRIZIONE": "Piastra ag (ferma specchio)  - DX",
+    "PREZZO": "€ 0,32"
+  },
+  {
+    "CODICE": "4284110.SX.PA",
+    "DESCRIZIONE": "Piastra ag (ferma specchio)  - SX",
+    "PREZZO": "€ 0,32"
+  }
+			]
+                    }
+                },
+                "SICUREZZA": {
+                    "categorie": {
+                        "PIASTRE PER MONTANTI": [
+                           {"CODICE": "PIA.COP.01","DESCRIZIONE": "piastra montante 45mm per fissaggio coprifilo in lamiera zincata", "PREZZO": "€ 1,94"
+  },
+  {
+    "CODICE": "PIA.COP.02",
+    "DESCRIZIONE": "piastra montante 90mm per fissaggio coprifilo in lamiera zincata",
+    "PREZZO": "€ 2,22"
+  },
+  {
+    "CODICE": "PIA.COP.03",
+    "DESCRIZIONE": "piastra montante 90mm per fissaggio coprifilo pesante su perimetrale con display, in lamiera zincata (solo montanti zona profumeria)",
+    "PREZZO": "€ 3,10"
+  }
+
+                        ],
+                        "PALO SICUREZZA": [
+                            {
+    "CODICE": "AS2222F.01.2260",
+    "DESCRIZIONE": "KIT MONTANTE DI RINFORZO PER SACAFFALE,SEZ. 45X45 L. 2260 MM COMPLETO DI PROLUNGA SUPERIORE IN LAMIERA H 671 MM, TASSELLI PER FISSAGGIO A PAVIMENTO E VITI PER FISSAGGIO\n(DIS. AS2222F.01.2260)",
+    "PREZZO": "€ 67,00"
+  }
+
+                        ],
+                        "BARRE RINFORZO DA 3 METRI - SICUREZZA": [
+                            {
+    "CODICE": "4440026.3000",
+    "DESCRIZIONE": "Barra Coprifilo per gondola in lamiera verniciata bianco Ral 9010  L 300 cm - spessore 3 mm (per montante 45+45mm) (piega interna utile 98 mm) *NEW*",
+    "PREZZO": "€ 48,00"
+  },
+{
+    "CODICE": "4440027.3000",
+    "DESCRIZIONE": "Barra Coprifilo per gondola in lamiera verniciata bianco Ral 9010  L 300 cm - spessore 3 mm (per montante 90+90mm)",
+    "PREZZO": "€ 96,00"
+ 
+  }
+                        ],
+                        "STAFFE "L" FISSAGGIO A MURO": [
+                            {
+    "CODICE": "SC.PR.MXX.0371",
+    "DESCRIZIONE": "Piastrina angolare a \"L\" per ag a muro in lamiera zincata sp. 4mm dim. 20x65+80mm con asola e fori (PIASTRA PER AG MONTANTE A MURO)",
+    "PREZZO": "€ 0,80"
+  },
+  {
+    "CODICE": "SC.PR.MXX.0374",
+    "DESCRIZIONE": "MENSOLA PESANTE PER AGGANCIO A MURO, IN LAMIERA ZINCATA SPESSORE 4 MM DIM.: L. 20 X 70+200 MM CON ASOLA E FORI DIAM. 6MM",
+    "PREZZO": "€ 1,30"
+  },
+  {
+    "CODICE": "SC.PR.MXX.0377",
+    "DESCRIZIONE": "MENSOLA PESANTE PER AGGANCIO A MURO, CON SAETTA, IN LAMIERA ZINCATA SPESSORE 4 MM DIM.: L. 20 X 100+251 MM CON FORI DIAM. 6MM",
+    "PREZZO": "€ 1,90"
+  },
+  {
+    "CODICE": "SC.PR.MXX.0378",
+    "DESCRIZIONE": "MENSOLA PESANTE PER AGGANCIO A MURO, CON SAETTA, IN LAMIERA ZINCATA SPESSORE 4 MM DIM.: L. 20 X 100+301 MM CON FORI DIAM. 6MM",
+    "PREZZO": "€ 2,10"
+  }
+
+                        ]
+                    }
+                },
+                "CASSETTIERE IN LEGNO E CASSETTI SCORTA": {
+                    "categorie": {
+                        "CASSETTIERA IN LEGNO": [
+                            {
+    "CODICE": "CASSETTI.LG.24.1",
+    "DESCRIZIONE": "CASSETTIERA MURALE IN NOBILITATO CON CASSETTO E SERRATURE DIM. 750X400 H. 250 MM GRIGIO SILVER RAL. 7035 (DIS. AS2219.750)\n* VERSIONE CON SPESSORE RIDOTTO *",
+    "PREZZO": "€ 154,28"
+  },
+  {
+    "CODICE": "CASSETTI.LG.25.1",
+    "DESCRIZIONE": "CASSETTIERA MURALE IN NOBILITATO CON CASSETTO E SERRATURE DIM. 1000X400 H. 250 MM GRIGIO SILVER RAL. 7035 (DIS. AS2219.1000) \n* VERSIONE CON SPESSORE RIDOTTO *",
+    "PREZZO": "€ 164,18"
+  },
+  {
+    "CODICE": "CASSETTI.LG.26",
+    "DESCRIZIONE": "CASSETTIERA MURALE (NON APRIBILE) IN NOBILITATO PER ANGOLO INT. 90° PROFUMERIA - GRIGIO SILVER RAL 7035",
+    "PREZZO": "€ 206,94"
+  },
+  {
+    "CODICE": "CASSETTI.LG.27",
+    "DESCRIZIONE": "CASSETTIERA MURALE (NON APRIBILE) IN NOBILITATO PER ANGOLO INT. 45° PROFUMERIA - GRIGIO RAL 7035",
+    "PREZZO": "€ 179,95"
+  },
+  {
+    "CODICE": "CASSETTI.LG.28",
+    "DESCRIZIONE": "CASSETTIERA MURALE (NON APRIBILE) IN NOBILITATO PER ANGOLO EST. 45° PROFUMERIA - GRIGIO RAL 7035",
+    "PREZZO": "€ 179,95"
+  }
+                        ],
+                        "CASSETTI SCORTA": [
+                            {
+    "CODICE": "5007096.GUIDA (KIT)",
+    "DESCRIZIONE": "Cassetto scorta in lamiera verniciata Bianca Ral 9010 L 75 cm",
+    "PREZZO": "€ 44,95"
+  },
+
+{
+    "CODICE": "5007094.GUIDA (KIT)",
+    "DESCRIZIONE": "Cassetto scorta in lamiera verniciata Bianca Ral 9010 L 100 cm",
+    "PREZZO": "€ 46,35"
+  }
+                       
+                        ]
+                    }
+                },
+                "PIANI BASE LEGNO": {
+                    "categorie": {
+                        "PIANO BASE LEGNO": [
+                              {
+    "CODICE": "PIANO.BASE.21",
+    "DESCRIZIONE": "Ripiano di base L 100 x P 42 cm in nobilitato spessore 2,5 cm, COLORE GRIGIO CHIARO RAL7035***AREA CENTRALE***",
+    "PREZZO": "€ 35,65"
+  },
+  {
+    "CODICE": "PIANO.BASE.22",
+    "DESCRIZIONE": "Ripiano di base L 75 x P 42 cm in nobilitato spessore 2,5 cm, COLORE GRIGIO CHIARO RAL7035 ***AREA CENTRALE***",
+    "PREZZO": "€ 30,99"
+  },
+  {
+    "CODICE": "PIANO.BASE.ANG.GS",
+    "DESCRIZIONE": "Ripiano di base sagomato ad angolo 90°  in nobilitato - P 42 x H 2,5 cm-Grigio silver ral 7035",
+    "PREZZO": "€ 57,20"
+  },
+  {
+    "CODICE": "PIANO.BASE.23",
+    "DESCRIZIONE": "ZOCCOLO IN NOBILITATO SP 18MM DIM .994X96 MM GRIGIO SILVER RAL 7035",
+    "PREZZO": "€ 21,74"
+  },
+  {
+    "CODICE": "PIANO.BASE.24",
+    "DESCRIZIONE": "ZOCCOLO IN NOBILITATO SP 18MM DIM .744X96 MM GRIGIO SILVER RAL 7035",
+    "PREZZO": "€ 19,03"
+  },
+  {
+    "CODICE": "PIANO.BASE.25",
+    "DESCRIZIONE": "ZOCCOLO AD ANGOLO IN NOBILITATO SP 18MM DIM 380X96 MM GRIGIO SILVER RAL 7035 CON STAFFE DI AG",
+    "PREZZO": "€ 21,74"
+  },
+  {
+    "CODICE": "PIANO.BASE.26",
+    "DESCRIZIONE": "ZOCCOLO IN NOBILITATO SP.18MM PER ANGOLO EST. 45° DIM. CM 38X9,6  FINITURA SIMILE RAL 7035 + STAFFE AG",
+    "PREZZO": "€ 18,20"
+  }
+                        ]
+},
+                "BANCO MAKE UP - COMPOSIZIONE": {
+                    "categorie": {
+                        "BANCO MAKE UP - STRUTTURA CASSETTI": [
+
+                           {
+    "CODICE": "CASSETTI.LG.02A.1",
+    "DESCRIZIONE": "CASSETTIERA MAKE-UP IN NOBILITATO RAL.7035 CON 3 CASSETTI E SERRATURE DIM. 600X830 H. 700 MM COMPLETA DI PIEDI E ZOCCOLO SMONTABILE (DIS. AS2218) * VERSIONE CON SPESSORE RIDOTTO *",
+    "PREZZO": "€ 380,24"
+  }
+                        ],
+                        "ZOCCOLI FRONTALI E LATERALI": [
+                            {
+    "CODICE": "ZOC.LG.02A.1",
+    "DESCRIZIONE": "Zoccolo frontale per cassettiera makeup in nobilitato Ral 7035, completa di agganci per pedini, dim. mm 1800x96",
+    "PREZZO": "€ 39,22"
+  },
+  {
+    "CODICE": "ZOC.LG.02A.2",
+    "DESCRIZIONE": "Zoccolo frontale per cassettiera makeup in nobilitato Ral 7035, completa di agganci per pedini, dim. mm 1200x96",
+    "PREZZO": "€ 31,51"
+  },
+  {
+    "CODICE": "ZOC.LG.02A.3",
+    "DESCRIZIONE": "Zoccolo laterale per cassettiera makeup in nobilitato Ral 7035, completa di agganci per pedini, dim. mm 1302x96",
+    "PREZZO": "€ 32,78"
+  },
+  {
+    "CODICE": "ZOC.LG.02A.5",
+    "DESCRIZIONE": "ZOCCOLO LATERALE PER CASSETTIERA MAKEUP IN NOBILITATO RAL 7035 COMPLETA DI AGGANGI PER PIEDINI, DIM MM 651X96 mm(DIS. AS1539)",
+    "PREZZO": "€ 17,50"
+  }
+                        ],
+                        "DIVISORIO SUPERIORE BANCO MAKE UP": [
+                            {
+    "CODICE": "DIVISORIA.LG.03",
+    "DESCRIZIONE": "Pannello divisorio superiore per mobili Make-Up, dim. L 180 x H 80 cm - colore simile Ral 7035 - DISEGNO AS1130",
+    "PREZZO": "€ 72,57"
+  },
+  {
+    "CODICE": "DIVISORIA.LG.04",
+    "DESCRIZIONE": "Pannello divisorio superiore per mobili Make-Up, dim. L 120 x H 80 cm - colore simile Ral 7035  - colore simile Ral 7035 - DISEGNO AS1129",
+    "PREZZO": "€ 53,60"
+  }
+                        ],
+                        "STAFFA BANCO MAKE UP (1 PER CASSETTIERA)": [
+                            {
+    "CODICE": "STAFFE.01",
+    "DESCRIZIONE": "Staffa per montaggio pannello divisorio superiore zincate, dim. L 3 x P 30 x H 30 cm , spessore 3mm",
+    "PREZZO": "€ 7,21"
+  },
+{
+    "CODICE": "GRADONE.01",
+    "DESCRIZIONE": "STRUTTURA A GRADONE \"AREA PROMO\" DIM. 600L X 800P X 900H PER MOBILE MAKEUP",
+    "PREZZO": "€ 278,62"
+  }
+                    ]
+                    }
+                },
+                "TESTATE E TOTEM": {
+                    "categorie": {
+                        "TESTATA PROMO 80 E 60 CM": [
+                            {
+    "CODICE": "TEST.PROMO.01.7035 (KIT)",
+    "DESCRIZIONE": "TESTATA PROMO IN NOBILITATO SIMIL RAL 7035  DIM. CM 80 L x 47 P X 165 H CON SPALLE LATERALI INCLINATE, BASE, RIPIANI E CROWNER, INCLUSI ACCESSORI IN PLEXIGLAS FUCSIA - **NUOVO FORMAT CON RIPIANI IN LEGNO GRIGIO RAL 7035**",
+    "PREZZO": "€ 638,08"
+  },
+{
+    "CODICE": "TEST.PROMO.02.7035 (KIT)",
+    "DESCRIZIONE": "TESTATA PROMO IN NOBILITATO SIMIL RAL 7035 DIM. CM 60 L x 47 P X 165 H CON SPALLE LATERALI INCLINATE, BASE, RIPIANI E CROWNER, INCLUSI ACCESSORI IN PLEXIGLAS FUCSIA- **NUOVO FORMAT CON RIPIANI IN LEGNO GRIGIO RAL 7035**",
+    "PREZZO": "€ 517,90"
+  }
+ ],
+                        "TOTEM": [
+
+{
+    "CODICE": "TOTEM.01  (KIT)",
+    "DESCRIZIONE": "TOTEM PORTA ESPOSITORE MAKEUP NOBILITATO SIMIL RAL 7035, RIPIANI E CUBOTTO SUPERIORE IN PLEXIGLAS FUXSIA, DIM. mm 400X400X1300 H",
+    "PREZZO": "€ 680,00"
+  }
+                        ]
+                    }
+                },
+                "BANCO PROFUMERIA": {
+                    "categorie": {
+                        "BANCO PROFUMERIA ": [
+                            {
+    "CODICE": "MOBILE.LG.16.SF (KIT)",
+    "DESCRIZIONE": "MOBILE BANCO PROFUMERIA IN NOBILITATO COLORE FUCSIA SIMILE RAL 4010 DIM. 1500X750X900 H INCLUSA TECA VETRO DIM. 1000X500X500H E ILLUMINAZIONE LED SENZA FORO PASSACAVI",
+    "PREZZO": "€ 1.740,96"
+  },
+{
+    "CODICE": "ESPOS.XX.LMVF.AS49",
+    "DESCRIZIONE": "RIALZO PER BANCO PROFUMERIA, IN PLEXIGLAS FUCSIA SP. 6 MM, DIM. MM 900X200X156 H (DIS. AS1149R)",
+    "PREZZO": "€ 86,14"
+  }
+                        ],
+                        "BANCO PROF. MINI": [
+                            { "codice": "ES.LG.M.0002.SF", "descrizione": "BANCO PROFUMERIA MINI DA 552X552 H950 MM CONSTRUTTURA IN NOB. FUCSIA, COMPLETO DI CASSETTO E RUOTE, INTERNO SENZA FORO PASSACAVI CASSETTO IN NOB. BIANCO", "colore": "FUCSIA RAL 4010", "prezzo": 517.40 }
+]
+                    }
+                },
+                "ESPOSITORI PROFUMI E PROMOZIONALI BASE LEGNO": {
+                    "categorie": {
+                        "ESPOSITORE PROFUMI ": [
+{
+    "CODICE": "ESPOS.XX.LMVF.AS59 (KIT)",
+    "DESCRIZIONE": "ESPOSITORE PROFUMI H1440 DIAMETRO 600 COMPLETO DI 16 PIANI IN PLEXIGLASS CON PIASTRE DI FISSAGGIO, BASE IN LEGNO RAL 7035 BORDATO IN ABS RAL 4010 E STRUTTURA IN PLEXIGLASS SATINATO, COMPLETO DI PORTA CARTELLO E DOPPIA TASCA IN PLEXI F.TO A4",
+    "PREZZO": "€ 643,35"
+  }
+                            
+                        ],
+                        "ESPOSITORE PROMO BASE LEGNO": [
+                            {
+    "CODICE": "ESPOS.XX.LMVF.AS35.1",
+    "DESCRIZIONE": "ESPOSITORE PROMOZIONALE COMPOSTO DA BASE IN LEGNO NOBILITATO con ruote, VASCA IN METACRILATO DIM. 400X400 H450 SP.8, PORTACARTELLO CENTRALE, PINZA E NR.4 PORTA PREZZI IN PMMA",
+    "PREZZO": "€ 260,00"
+  }
+                        ],
+}
+                },
+                "ACCESSORI COLONNA TRUCCO": {
+                    "categorie": {
+                        "ACCESSORI COLONNA TRUCCO ": [
+
+                        "RIPIANI COLONNA TRUCCO": [
+                            {
+    "CODICE": "RIPIANO.PX.01",
+    "DESCRIZIONE": "RIPIANO IN PLEXI FUCSIA 6mm DIM. 200X600mm",
+    "PREZZO": "€ 40,63"
+  }
+                        ],
+                        "LOGHI E ACCESSORI": [
+                            {
+    "CODICE": "AS1139",
+    "DESCRIZIONE": "CESTINO IN PLEXIGLAS FUCSIA, dim. mm 200x200x350 H CON 4 GOMMINI ANTISCIVOLO",
+    "PREZZO": "€ 69,27"
+  },
+  {
+    "CODICE": "1-ES.PLEX.01",
+    "DESCRIZIONE": "ACCESSORIO PORTA DISCHETTI IN PLEXIGLAS FUCSIA, DIM. mm 84x84x250 H",
+    "PREZZO": "€ 20,53"
+  },
+  {
+    "CODICE": "AS2185",
+    "DESCRIZIONE": "ACCESSORIO PORTAVELINE IN PLEXIGLAS FUCSIA, DIM. mm 256X128X78 H",
+    "PREZZO": "€ 38,51"
+  },
+{
+    "CODICE": "LOGO.01",
+    "DESCRIZIONE": "LOGO SOGGETTI VARI DIAMETRO 40 CM IN FOREX 20mm CON SCRITTA IN RILIEVO  -- ACQUA E SAPONE",
+    "PREZZO": "€ 101,80"
+  },
+  {
+    "CODICE": "LOGO.ES",
+    "DESCRIZIONE": "LOGO IN SPAGNOLO SOGGETTI VARI DIAMETRO 40 CM IN FOREX 20mm CON SCRITTA IN RILIEVO  -- ACQUA E SAPONE - IN SPAGNOLO",
+    "PREZZO": "€ 101,80"
+  },
+  {
+    "CODICE": "LOGO.01S",
+    "DESCRIZIONE": "LOGO SOGGETTI VARI DIAMETRO 40 CM IN FOREX 20mm CON SCRITTA IN RILIEVO  --  LA SAPONERIA",
+    "PREZZO": "€ 101,80"
+  },
+{
+    "CODICE": "ME501.470X600",
+    "DESCRIZIONE": "SPECCHIO CON FARETTI LED INCASSATI, INTENSITA' REGOLABILE, DIM. 470X630mm (COLONNA TRUCCO)",
+    "PREZZO": "€ 658,28"
+  },
+  {
+    "CODICE": "AS2184 (KIT)",
+    "DESCRIZIONE": "RIPIANO IN VETRO DIM. 465X200 SP.8, COMPLETO DI PROFILO DI FISSAGGIO IN ALLUMINIO (X COLONNA TRUCCO)",
+    "PREZZO": "€ 182,81"
+  },
+  {
+    "CODICE": "1-AS2184",
+    "DESCRIZIONE": "RIPIANO IN VETRO DIM. 465X200 SP.8",
+    "PREZZO": "€ 25,10"
+  }
+                        ],
+},
+                "COLONNE TRUCCO STANDARD": {
+                    "categorie": {
+                        "COLONNE TRUCCO H3180 ": [
+{
+    "CODICE": "RIV.COL.10A",
+    "DESCRIZIONE": "RIVESTIMENTO COLONNA IN NOBILITATO GRIGIO SILVER  RAL 7035 DIM. 620X1000X3180 MM 3 LATI LISCIO E 1 LATO LUNGO ATTREZZATO",
+    "PREZZO": "€ 850,00"
+  },
+  {
+    "CODICE": "RIV.COL.10B",
+    "DESCRIZIONE": "RIVESTIMENTO COLONNA COLORE GRIGIO SILVER RAL 7035 DIM. 620X620X3180 1 LATO LISCIO + 3 LATI ATTREZZATI +",
+    "PREZZO": "€ 618,00"
+  },
+{
+    "CODICE": "RIV.COL.10O",
+    "DESCRIZIONE": "RIVESTIMENTO COLONNA COLORE GRIGIO SILVER RAL 7035 DIM. 620X620xH3180 DIVISA IN DUE PEZZI DA 2050+1130 MM, 3 LATI LISCI + 1 LATO ATTREZZATO (DIS.AS1523)",
+    "PREZZO": "€ 530,40"
+  }
+
+                        ],
+},
+                        "POFILI CHIUSURA COLONNE": [
+                           {
+    "CODICE": "PROFILO.04",
+    "DESCRIZIONE": "Profilo angolare  \"L\" 3x3 cm preverniciato bianco semilucido - L 350 cm",
+    "PREZZO": "€ 37,48"
+  },
+  {
+    "CODICE": "PROFILO.08",
+    "DESCRIZIONE": "Profilo angolare \"L\" 25x25 mm lunghezza 3180 mm decorato con adesivo ral 7035",
+    "PREZZO": "€ 37,48"
+  },
+  {
+    "CODICE": "PROFILO.11",
+    "DESCRIZIONE": "Profilo angolare \"L\" 30x30 mm lunghezza 3180 mm preverniciato ral 7035",
+    "PREZZO": "€ 37,48"
+  }
+
+ }
+
+                        ],
+},
+                "COMUNICAZIONE CROWNER-FOREX": {
+                    "categorie": {
+                        "CROWNER": [
+ {
+    "CODICE": "CROWNER.01",
+    "DESCRIZIONE": "Crowner in plexiglas opalino 3mm\nH 350mm decorato con pellicola adesiva\nPROFUMERIA ALTA",
+    "PREZZO": "€ 29,10"
+  },
+  {
+    "CODICE": "CROWNER.02",
+    "DESCRIZIONE": "Crowner in plexiglas opalino 3mm\nH 350mm decorato con pellicola adesiva\nGONDOLA BASSA",
+    "PREZZO": "€ 37,00"
+  }
+
+                        "FOREX": [
+{ "codice": "PAN.005", "descrizione": "Pannello in Forex con stampa diretta monofacciale (per rivestimento Crowner) - Spessore 0,5 cm ", "colore": "STAMPATO", "prezzo": 20.80 },
+                       
+ }
+
+                        ],
+},
+                "INSEGNE GONDOLA BASSA": {
+                    "categorie": {
+                        "INSEGNE": [
+{
+    "CODICE": "INSEGNA.39",
+    "DESCRIZIONE": "cassonetti retroilluminati a LED, installati sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 1250x352mm\ninclusi N. 2 profili ad \"L\" decorati o verniciati, per fissaggio pannello superiore e inferiore",
+    "PREZZO": "€ 139,30"
+  },
+  {
+    "CODICE": "INSEGNA.44",
+    "DESCRIZIONE": "cassonetti retroilluminati a LED, installati sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 870x352mm\ninclusi N. 2 profili ad \"L\" decorati o verniciati, per fissaggio pannello superiore e inferiore",
+    "PREZZO": "€ 130,00"
+  },
+  {
+    "CODICE": "PAN.005",
+    "DESCRIZIONE": "Pannello in Forex con stampa diretta monofacciale (per rivestimento Crowner) - Spessore 0,5 cm",
+    "PREZZO": "€ 20,80"
+  },
+  {
+    "CODICE": "INSEGNA.94",
+    "DESCRIZIONE": "cassonetti retroilluminati a LED, installati sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 750x352mm\ninclusi N. 2 profili ad \"L\" decorati o verniciati, per fissaggio pannello superiore e inferiore",
+    "PREZZO": "€ 124,80"
+  },
+  {
+    "CODICE": "INSEGNA.94.F",
+    "DESCRIZIONE": "cassonetti retroilluminati a LED, installati sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 750x352mm\ninclusi N. 2 profili ad \"L\" decorati o verniciati FUCSIA, per fissaggio pannello superiore e inferiore",
+    "PREZZO": "€ 124,80"
+  },
+  {
+    "CODICE": "INSEGNA.40",
+    "DESCRIZIONE": "cassonetti retroilluminati a LED, installati sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 1000x352mm\ninclusi N. 2 profili ad \"L\" decorati o verniciati, per fissaggio pannello superiore e inferiore",
+    "PREZZO": "€ 135,20"
+  },
+  {
+    "CODICE": "INSEGNA.40.F",
+    "DESCRIZIONE": "cassonetti retroilluminati a LED, installati sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 1000x352mm\ninclusi N. 2 profili ad \"L\" decorati o verniciati FUCSIA, per fissaggio pannello superiore e inferiore",
+    "PREZZO": "€ 135,20"
+  },
+  {
+    "CODICE": "INSEGNA.22",
+    "DESCRIZIONE": "cassonetti retroilluminati a LED, installati sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 1500x352mm\ninclusi N. 2 profili ad \"L\" decorati o verniciati, per fissaggio pannello superiore e inferiore",
+    "PREZZO": "€ 185,00"
+  },
+  {
+    "CODICE": "INSEGNA.22.F",
+    "DESCRIZIONE": "cassonetti retroilluminati a LED, installati sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 1500x352mm\ninclusi N. 2 profili ad \"L\" decorati o verniciati FUCSIA, per fissaggio pannello superiore e inferiore",
+    "PREZZO": "€ 185,00"
+  },
+  {
+    "CODICE": "INSEGNA.45",
+    "DESCRIZIONE": "cassonetti retroilluminati a LED, installati sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 1400x352mm\ninclusi N. 2 profili ad \"L\" decorati o verniciati, per fissaggio pannello superiore e inferiore",
+    "PREZZO": "€ 139,90"
+  },
+  {
+    "CODICE": "INSEGNA.32",
+    "DESCRIZIONE": "cassonetti retroilluminati a LED, installati sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 1750x352mm\ninclusi N. 2 profili ad \"L\" decorati o verniciati, per fissaggio pannello superiore e inferiore",
+    "PREZZO": "€ 249,00"
+  },
+  {
+    "CODICE": "INSEGNA.32.F",
+    "DESCRIZIONE": "cassonetti retroilluminati a LED, installati sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 1750x352mm\ninclusi N. 2 profili ad \"L\" decorati o verniciati FUCSIA, per fissaggio pannello superiore e inferiore",
+    "PREZZO": "€ 249,00"
+  },
+  {
+    "CODICE": "INSEGNA.46",
+    "DESCRIZIONE": "cassonetti retroilluminati a LED, installati sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 1950x352mm\ninclusi N. 2 profili ad \"L\" decorati o verniciati, per fissaggio pannello superiore e inferiore",
+    "PREZZO": "€ 239,45"
+  },
+  {
+    "CODICE": "INSEGNA.23",
+    "DESCRIZIONE": "cassonetti retroilluminati a LED, installati sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 2000x352mm\ninclusi N. 2 profili ad \"L\" decorati o verniciati, per fissaggio pannello superiore e inferiore",
+    "PREZZO": "€ 249,00"
+  },
+  {
+    "CODICE": "INSEGNA.23.F",
+    "DESCRIZIONE": "cassonetti retroilluminati a LED, installati sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 2000x352mm\ninclusi N. 2 profili ad \"L\" decorati o verniciati FUCSIA, per fissaggio pannello superiore e inferiore",
+    "PREZZO": "€ 249,00"
+  },
+  {
+    "CODICE": "INSEGNA.38",
+    "DESCRIZIONE": "cassonetti retroilluminati a LED, installati sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 2250x352mm\ninclusi N. 2 profili ad \"L\" decorati o verniciati, per fissaggio pannello superiore e inferiore",
+    "PREZZO": "€ 265,75"
+  },
+  {
+    "CODICE": "INSEGNA.38.F",
+    "DESCRIZIONE": "cassonetti retroilluminati a LED, installati sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 2250x352mm\ninclusi N. 2 profili ad \"L\" decorati o verniciati FUCSIA, per fissaggio pannello superiore e inferiore",
+    "PREZZO": "€ 265,75"
+  },
+  {
+    "CODICE": "INSEGNA.33",
+    "DESCRIZIONE": "cassonetti retroilluminati a LED, installati sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 2500x352mm\ninclusi N. 2 profili ad \"L\" decorati o verniciati, per fissaggio pannello superiore e inferiore",
+    "PREZZO": "€ 282,55"
+  },
+  {
+    "CODICE": "INSEGNA.33.F",
+    "DESCRIZIONE": "cassonetti retroilluminati a LED, installati sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 2500x352mm\ninclusi N. 2 profili ad \"L\" decorati o verniciati FUCSIA, per fissaggio pannello superiore e inferiore",
+    "PREZZO": "€ 282,55"
+  },
+  {
+    "CODICE": "INSEGNA.24",
+    "DESCRIZIONE": "cassonetti retroilluminati a LED, installati sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 2750x352mm\ninclusi N. 2 profili ad \"L\" decorati o verniciati, per fissaggio pannello superiore e inferiore",
+    "PREZZO": "€ 282,55"
+  },
+  {
+    "CODICE": "INSEGNA.24.F",
+    "DESCRIZIONE": "cassonetti retroilluminati a LED, installati sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 2750x352mm\ninclusi N. 2 profili ad \"L\" decorati o verniciati FUCSIA, per fissaggio pannello superiore e inferiore",
+    "PREZZO": "€ 282,55"
+  },
+  {
+    "CODICE": "INSEGNA.25",
+    "DESCRIZIONE": "cassonetti retroilluminati a LED, installati sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 3000x352mm\ninclusi N. 2 profili ad \"L\" decorati o verniciati, per fissaggio pannello superiore e inferiore",
+    "PREZZO": "€ 282,55"
+  },
+  {
+    "CODICE": "INSEGNA.25.F",
+    "DESCRIZIONE": "cassonetti retroilluminati a LED, installati sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 3000x352mm\ninclusi N. 2 profili ad \"L\" decorati o verniciati FUCSIA, per fissaggio pannello superiore e inferiore",
+    "PREZZO": "€ 282,55"
+  },
+  {
+    "CODICE": "INSEGNA.26",
+    "DESCRIZIONE": "Cassonetto non luminoso completo di opalino, composto da \n1 pz dimensione mm 620x63 H352\n1 pz dimensione mm 520x63 H352\ncompleto di profili \"L\" 25x25 decorati\n2pz L. 620mm\n2pz L. 520mm",
+    "PREZZO": "€ 158,65"
+  },
+  {
+    "CODICE": "INSEGNA.26D",
+    "DESCRIZIONE": "Cassonetto non luminoso completo di opalino, composto da \n1 pz dimensione mm 450x63 H352\n1 pz dimensione mm 550x63 H352\ncompleto di profili \"L\" 25x25 decorati o verniciati\n2pz L. 450mm\n2pz L. 550mm",
+    "PREZZO": "€ 158,65"
+  },
+  {
+    "CODICE": "INSEGNA.26A",
+    "DESCRIZIONE": "Cassonetto non luminoso completo di opalino, composto da \n1 pz dimensione mm 1000x63 H352\n1 pz dimensione mm450x63 H352\ncompleto di profili \"L\" 25x25 decorati o verniciati\n2pz L. 450mm\n2pz L. 1000mm",
+    "PREZZO": "€ 201,80"
+  },
+  {
+    "CODICE": "INSEGNA.26B",
+    "DESCRIZIONE": "Cassonetto non luminoso completo di opalino, composto da \n1 pz dimensione mm 1000x63 H352\n1 pz dimensione mm 600x63 H352\ncompleto di profili \"L\" 25x25 decorati o verniciati\n2pz L. 600mm\n2pz L. 1000mm",
+    "PREZZO": "€ 202,80"
+  },
+  {
+    "CODICE": "INSEGNA.62",
+    "DESCRIZIONE": "cassonetto NON LUMINOSO  installato sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 500x352mm\ninclusi N. 2 profili ad \"L\" 25x25 decorati o verniciati per fissaggio pannello superiore e inferiore",
+    "PREZZO": "€ 115,00"
+  },
+  {
+    "CODICE": "INSEGNA.53",
+    "DESCRIZIONE": "cassonetto NON LUMINOSO  installato sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 750x352mm\ninclusi N. 2 profili ad \"L\" 25x25 verniciati, per fissaggio pannello superiore e inferiore",
+    "PREZZO": "€ 115,00"
+  },
+  {
+    "CODICE": "INSEGNA.41",
+    "DESCRIZIONE": "cassonetto NON LUMINOSO  installato sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 1000x352mm\ninclusi N. 2 profili ad \"L\" 25x25 decorati o verniciati per fissaggio pannello superiore e inferiore",
+    "PREZZO": "€ 119,60"
+  },
+  {
+    "CODICE": "INSEGNA.35",
+    "DESCRIZIONE": "cassonetto NON LUMINOSO  installato sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 1200x352mm\ninclusi N. 2 profili ad \"L\" 25x25 decorati o verniciati per fissaggio pannello superiore e inferiore",
+    "PREZZO": "€ 120,00"
+  },
+  {
+    "CODICE": "INSEGNA.54",
+    "DESCRIZIONE": "cassonetto NON LUMINOSO  installato sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 1500x352mm\ninclusi N. 2 profili ad \"L\" 25x25 decorati o verniciati per fissaggio pannello superiore e inferiore",
+    "PREZZO": "€ 153,00"
+  },
+  {
+    "CODICE": "INSEGNA.52",
+    "DESCRIZIONE": "cassonetto NON LUMINOSO  installato sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 1750x352mm\ninclusi N. 2 profili ad \"L\" 25x25 verniciati, per fissaggio pannello superiore e inferiore",
+    "PREZZO": "€ 153,00"
+  },
+  {
+    "CODICE": "INSEGNA.63",
+    "DESCRIZIONE": "cassonetto NON LUMINOSO  installato sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 2000x352mm\ninclusi N. 2 profili ad \"L\" 25x25 decorati o verniciati per fissaggio pannello superiore e inferiore",
+    "PREZZO": "€ 187,00"
+  },
+  {
+    "CODICE": "INSEGNA.55",
+    "DESCRIZIONE": "cassonetto NON LUMINOSO  installato sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 2150x352mm\ninclusi N. 2 profili ad \"L\" 25x25 decorati o verniciati per fissaggio pannello superiore e inferiore",
+    "PREZZO": "€ 179,00"
+  },
+  {
+    "CODICE": "INSEGNA.48A",
+    "DESCRIZIONE": "cassonetto NON LUMINOSO  installato sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 519x352mm",
+    "PREZZO": "€ 87,40"
+  },
+  {
+    "CODICE": "INSEGNA.74",
+    "DESCRIZIONE": "cassonetto NON LUMINOSO  installato sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 2250x352mm\ninclusi N. 2 profili ad \"L\" 25x25 decorati o verniciati, per fissaggio pannello superiore e inferiore",
+    "PREZZO": "€ 179,00"
+  },
+  {
+    "CODICE": "INSEGNA.51",
+    "DESCRIZIONE": "cassonetto NON LUMINOSO  installato sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 2500x352mm\ninclusi N. 2 profili ad \"L\" 25x25 decorati o verniciati, per fissaggio pannello superiore e inferiore",
+    "PREZZO": "€ 186,20"
+  },
+  {
+    "CODICE": "INSEGNA.36",
+    "DESCRIZIONE": "cassonetto NON LUMINOSO  installato sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 2750x352mm\ninclusi N. 2 profili ad \"L\" 25x25 decorati o verniciati, per fissaggio pannello superiore e inferiore",
+    "PREZZO": "€ 194,50"
+  },
+  {
+    "CODICE": "INSEGNA.37",
+    "DESCRIZIONE": "cassonetto NON LUMINOSO  installato sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 3000x352mm\ninclusi N. 2 profili ad \"L\" 25x25 decorati o verniciati, per fissaggio pannello superiore e inferiore",
+    "PREZZO": "€ 194,50"
+  },
+  {
+    "CODICE": "INSEGNA.42",
+    "DESCRIZIONE": "cassonetti retroilluminati a LED, BIFACCIALI installati sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 2000x352mm\ninclusi N. 2 profili ad \"L\" decorati o verniciati, per fissaggio pannello superiore e inferiore",
+    "PREZZO": "€ 478,90"
+  },
+  {
+    "CODICE": "INSEGNA.43",
+    "DESCRIZIONE": "cassonetti retroilluminati a LED, BIFACCIALI installati sopra le gondole basse poste sul lato sinistro dell'area perimetrale, con predisposizione per crowner in plexiglas opalino decorato\nDim. 1500x352mm\ninclusi N. 2 profili ad \"L\" decorati o verniciati, per fissaggio pannello superiore e inferiore",
+    "PREZZO": "€ 278,60"
+  },
+  {
+    "CODICE": "AS1147.3000.F",
+    "DESCRIZIONE": "PROFILO \"L\"  25X25MM LAMIERA 15/10 L.3000 VERNICIATO FUCSIA RAL.4010",
+    "PREZZO": "€ 23,74"
+  },
+  {
+    "CODICE": "AS1147.3000.GC",
+    "DESCRIZIONE": "PROFILO \"L\"  25X25MM LAMIERA 15/10 L.3000 VERNICIATO GRIGIO RAL7035",
+    "PREZZO": "€ 25,75"
+}
+
+                        ],
+},                "SPALLE BIANCHE/GRIGIE": {
+                    "categorie": {
+                        "SPALLE BIANCHE ": [
+{
+    "CODICE": "PA.LG.M.0001PV",
+    "DESCRIZIONE": "SPALLA DOGATA PVC 230X50 - PANNELLO IN NOBILITATO SP. 25 MM, BIANCO OPACO, DIM. 525X2175 MM, 4 LATI BORDO ABS BIANCO CON 18 INSERTI IN PVC. DIS. AS1192A5.2175",
+    "PREZZO": "€ 145,25"
+  },
+  {
+    "CODICE": "PA.LG.M.0001L",
+    "DESCRIZIONE": "SPALLA LISCIA 230X50 - PANNELLO IN NOBILITATO SP. 25 MM, BIANCO OPACO, DIM. 525X2175 MM,  4 LATI BORDO ABS BIANCO  (DIS. AS1192A5.2175L)",
+    "PREZZO": "€ 139,80"
+  },
+  {
+    "CODICE": "PA.LG.M.0003PV",
+    "DESCRIZIONE": "SPALLA DOGATA PVC 230X40 - PANNELLO IN NOBILITATO SP. 25 MM, BIANCO OPACO, DIM. 425X2175 MM, 4 LATI BORDO ABS BIANCO CON 18 INSERTI IN PVC. DIS. AS1192A4.2175",
+    "PREZZO": "€ 141,20"
+  },
+  {
+    "CODICE": "PA.LG.M.0002PV",
+    "DESCRIZIONE": "SPALLA DOGATA PVC 210X50 - PANNELLO IN NOBILITATO SP. 25 MM, BIANCO OPACO, DIM. 525X1995 MM, 4 LATI BORDO ABS BIANCO CON 18 INSERTI IN PVC. DIS. AS1192A5.1995",
+    "PREZZO": "€ 125,93"
+  },
+  {
+    "CODICE": "PA.LG.M.0002L",
+    "DESCRIZIONE": "SPALLA LISCIA 210X50 - PANNELLO IN NOBILITATO SP. 25 MM, BIANCO OPACO, DIM. 525X1995 MM, 4 LATI BORDO ABS BIANCOLISCIO (DIS. AS1192A5.1995L)",
+    "PREZZO": "€ 77,80"
+  },
+  {
+    "CODICE": "PA.LG.M.0004PV",
+    "DESCRIZIONE": "SPALLA DOGATA PVC 210X40 - PANNELLO IN NOBILITATO SP. 25 MM, BIANCO OPACO,\nDIM. 425X1995 MM, 4 LATI BORDO ABS BIANCO CON 18\nINSERTI IN PVC. DIS.AS1192A4.1995",
+    "PREZZO": "€ 128,10"
+  },
+  {
+    "CODICE": "PA.LG.M.0186PV",
+    "DESCRIZIONE": "SPALLA DOGATA PVC 210X40 base legno - PANNELLO IN NOBILITATO SP. 25 MM, BIANCO OPACO, DIM. 425X1974 MM, 4 LATI BORDO ABS BIANCO CON 18\nINSERTI IN PVC. DIS.AS1192F4.1974",
+    "PREZZO": "€ 139,20"
+  },
+  {
+    "CODICE": "PA.LG.M.0006PV",
+    "DESCRIZIONE": "SPALLA DOGATA PVC 165X50 - PANNELLO IN NOBILITATO SP. 25 MM, BIANCO OPACO, DIM. 525X1565 MM, 4 LATI BORDO ABS BIANCO CON 14\nINSERTI IN PVC. DIS. AS1192A5.1565",
+    "PREZZO": "€ 169,00"
+  },
+  {
+    "CODICE": "PA.LG.M.0034PV",
+    "DESCRIZIONE": "SPALLA DOGATA PVC 165X40 - PANNELLO IN NOBILITATO SP. 25 MM, BIANCO OPACO, DIM. 425X1565 MM, 4 LATI BORDO ABS BIANCO CON 14\nINSERTI IN PVC. DIS. AS1192A4.1565",
+    "PREZZO": "€ 156,00"
+  },
+  {
+    "CODICE": "PA.LG.M.0007PV",
+    "DESCRIZIONE": "SPALLA DOGATA PVC 240X50 - PANNELLO IN NOBILITATO SP. 25 MM, BIANCO OPACO, DIM. 525X2285 MM, 4 LATI BORDO ABS BIANCO CON 18 INSERTI IN PVC. DIS. AS1192A5.2285",
+    "PREZZO": "€ 224,30"
+  },
+  {
+    "CODICE": "PA.LG.M.0041PV",
+    "DESCRIZIONE": "SPALLA DOGATA PVC 240X40 - PANNELLO IN NOBILITATO SP. 25 MM, BIANCO OPACO, DIM. 425X2285 MM, 4 LATI BORDO ABS BIANCO CON 18 INSERTI IN PVC. DIS. AS1192A4.2285",
+    "PREZZO": "€ 141,60"
+  },
+  {
+    "CODICE": "PA.LG.M.0199PV",
+    "DESCRIZIONE": "SPALLA DOGATA PVC 240X40 base legno PANNELLO IN NOBILITATO SP.25mm BIANCO OPACO DIM. 425X2264mm,  4 LATI BORDO ABS BIANCO, CON 18 INSERTI IN PVC, PARTENZA PRIMA DOGA 854 mm, PASSO 50 mm (DIS. AS1192F4.2264)",
+    "PREZZO": "€ 295,00"
+  },
+  {
+    "CODICE": "PA.LG.M.0031PV",
+    "DESCRIZIONE": "SPALLA DOGATA PVC 150X50 -  PANNELLO IN NOBILITATO SP. 25 MM, BIANCO OPACO, DIM. 425X1419 MM, 4 LATI BORDO ABS BIANCO CON 11\nINSERTI IN PVC. DIS.AS1192A4.1419",
+    "PREZZO": "€ 98,80"
+  },
+  {
+    "CODICE": "PA.LG.M.0037PV",
+    "DESCRIZIONE": "SPALLA DOGATA PVC 200X50 -  PANNELLO IN NOBILITATO SP. 25 MM, BIANCO OPACO, DIM. 525X1851 MM, 4 LATI BORDO ABS BIANCO CON 18\nINSERTI IN PVC. DIS.AS1192A5.1851",
+    "PREZZO": "€ 131,00"
+  },
+  {
+    "CODICE": "PA.LG.M.0036PV",
+    "DESCRIZIONE": "SPALLA DOGATA PVC 200X40 - PANNELLO IN NOBILITATO SP. 25 MM, BIANCO OPACO, DIM. 425X1851 MM, 4 LATI BORDO ABS BIANCO CON 18\nINSERTI IN PVC. DIS.AS1192A4.1851",
+    "PREZZO": "€ 147,00"
+  },
+ 
+  {
+    "CODICE": "PA.LG.M.0446",
+    "DESCRIZIONE": "SPALLA DOGATA BIANCO OPACO 265X40 base legno (INGRESSO CANCELLETTO) - PANNELLO IN NOBILITATO SP.25 BIANCO OPACO DIM. 425X2515 MM,4 LATI BORDO ABS BIANCO,CON 18 INSERTI IN ALLUMINIO (DIS. AS1192F4.2515)",
+    "PREZZO": "€ 243,55"
+  },
+  
+  {
+    "CODICE": "PA.LG.M.0039PV",
+    "DESCRIZIONE": "SPALLA DOGATA BIANCO OPACO 210X60 base metallo - PANNELLO IN NOBILITATO SP. 25 MM, BIANCO OPACO, DIM. 625X1995 MM, 4 LATI BORDO ABS BIANCO OPACO CON 18 INSERTI IN PVC. DIS. AS1192A6.1995",
+    "PREZZO": "€ 250,00"
+  },
+  {
+    "CODICE": "PA.LG.M.0040PV",
+    "DESCRIZIONE": "SPALLA DOGATA BIANCO OPACO 230X60 base metallo -PANNELLO IN NOBILITATO SP. 25 MM, BIANCO OPACO, DIM. 625X2175 MM, 4 LATI BORDO ABS BIANCO OPACO CON 18 INSERTI IN PVC. DIS. AS1192A6.2175",
+    "PREZZO": "€ 335,00"
+  },
+  {
+    "CODICE": "PA.LG.X.0012",
+    "DESCRIZIONE": "PROLUNGA SPALLA 40X25 - PANNELLO IN NOBILITATO SP. 25mm BIANCO OPACO DIM. 425X250mm",
+    "PREZZO": "€ 25,00"
+  },
+  {
+    "CODICE": "PA.LG.X.0013",
+    "DESCRIZIONE": "PROLUNGA SPALLA 40X43 - PANNELLO IN NOBILITATO SP. 25mm BIANCO OPACO DIM. 425X430mm",
+    "PREZZO": "€ 28,10"
+  },
+  
+  {
+    "CODICE": "PA.LG.X.0004",
+    "DESCRIZIONE": "PROLUNGA SPALLA 50X25 - PANNELLO IN NOBILITATO SP. 25mm BIANCO OPACO DIM. 525X250mm",
+    "PREZZO": "€ 27,05"
+  },
+  {
+    "CODICE": "PA.LG.X.0005",
+    "DESCRIZIONE": "PROLUNGA SPALLA 50X43 - PANNELLO IN NOBILITATO SP. 25mm BIANCO OPACO DIM. 525X430mm",
+    "PREZZO": "€ 30,15"
+  },
+  {
+    "CODICE": "PA.LG.X.0024",
+    "DESCRIZIONE": "PROLUNGA SPALLA 50X25+25 - PANNELLO IN NOBILITATO SP. 25mm BIANCO OPACO DIM. 525X500mm",
+    "PREZZO": "€ 31,00"
+  },
+  {
+    "CODICE": "PA.LG.X.0018",
+    "DESCRIZIONE": "PROLUNGA SPALLA 60X25 - PANNELLO IN NOBILITATO SP. 25mm BIANCO OPACO DIM. 625X250mm",
+    "PREZZO": "€ 29,00"
+  },
+  {
+    "CODICE": "PA.LG.X.0011",
+    "DESCRIZIONE": "PROLUNGA SPALLA 60X43 - PANNELLO IN NOBILITATO SP. 25mm BIANCO OPACO DIM. 625X430mm",
+    "PREZZO": "€ 34,30"
+  }
+
+                        "SPALLE GRIGIE": [
+ {
+    "CODICE": "PA.LG.M.0037PV.G1",
+    "DESCRIZIONE": "SPALLA DOGATA PVC 200X50 - PANNELLO IN NOBILITATO SP. 25 MM, GRIGIO RAL 7035 DIM. 525X1851 MM, 4 LATI BORDO ABS GRIGIO CHIARO CON 18\nINSERTI IN PVC. DIS.AS1192A5.1851",
+    "PREZZO": "€ 131,00"
+  },
+{
+    "CODICE": "PA.LG.M.0186PV.G1",
+    "DESCRIZIONE": "SPALLA DOGATA PVC 210X40 base legno - PANNELLO IN NOBILITATO SP. 25 MM, GRIGIO CHIARO RAL 7035, DIM. 425X1974 MM, 4 LATI BORDO ABS CON 18 INSERTI IN PVC. DIS.AS1192F4.1974",
+    "PREZZO": "€ 139,20"
+  },
+  {
+    "CODICE": "PA.LG.M.0199PV.G1",
+    "DESCRIZIONE": "SPALLA DOGATA PVC 240X40 base legno - PANNELLO IN NOBILITATO SP.25mm GRIGIO CHIARO RAL 7035 DIM. 425X2264mm, 4 LATI BORDO ABS GRIGIO, CON 18 INSERTI IN PVC, PARTENZA PRIMA DOGA 854 mm, PASSO 50 mm (DIS. AS1192F4.2264)",
+    "PREZZO": "€ 306,00"
+  },
+  {
+    "CODICE": "PA.LG.M.0440PV.G1",
+    "DESCRIZIONE": "SPALLA DOGATA PVC 150+25X40 base legno - PANNELLO IN NOBILITATO SP.25 MM GRIGIO CHIARO SIMIL RAL 7035 DIM. 425X1650 4 LATI BORDO ABS GRIGIO CHIARO CON 15 INSERTI IN PVC (SPALLA DETTA 1500+250) - DIS AS1612.1650G1",
+    "PREZZO": "€ 158,60"
+  },
+  {
+    "CODICE": "PA.LG.M.0441PV.G1",
+    "DESCRIZIONE": "SPALLA DOGATA PVC 150+43X40 base legno - PANNELLO IN NOBILITATO SP. 25 MM GRIGIO CHIARO SIMIL RAL 7035 DIM 425X1829 MM, 4 LATI BORDO ABS GRIGIO CHIARO, CON 17 INSERTI IN PVC (SPALLA DETTA 1500+430) - DIS. AS1613.1829G1",
+    "PREZZO": "€ 169,50"
+  },
+  {
+    "CODICE": "PA.LG.M.0462.G1",
+    "DESCRIZIONE": "SPALLA  LISCIA GRIGIO RAL 7035  - 165X40 per base legno - PANNELLO IN NOBILITATO SP. 25 MM GRIGIO CHIARO RAL 7035 DIM. 425x1508 MM  4 LATI BORDO ABS GRIGIO (PER MONTANTE DETTO H. 165 CM E BASE LEGNO DA 40 CM) - (DIS. AS1663.1508)",
+    "PREZZO": "€ 247,00"
+  },
+  {
+    "CODICE": "PA.LG.M.0188PV.G1",
+    "DESCRIZIONE": "SPALLA DOGATA GRIGIO RAL 7035 160X40 base legno - PANNELLO IN NOBILITATO SP.25mm COLORE GRIGIO RAL 7035 DIM. 425x1508mm,  4 LATI BORDO ABS GRIGIO, CON 14 INSERTI IN PVC,  (DIS. AS1192F4.1508)",
+    "PREZZO": "€ 135,00"
+  },
+  {
+    "CODICE": "PA.LG.M.0261.G1",
+    "DESCRIZIONE": "SPALLA LISCIA GRIGIO RAL 7035 165X40 base legno - PANNELLO IN NOBILITATO SP.25mm COLORE GRIGIO RAL 7035 DIM. 425x1544mm,  4 LATI BORDO ABS GRIGIO, (DIS. AS1192F4.1544.SD) - LISCIO",
+    "PREZZO": "€ 128,00"
+  },
+  {
+    "CODICE": "PA.LG.M.0261PV.G1",
+    "DESCRIZIONE": "SPALLA DOGATA GRIGIO RAL 7035 165X40 base legno - PANNELLO IN NOBILITATO SP.25mm COLORE GRIGIO RAL 7035 DIM. 425x1535mm,  4 LATI BORDO ABS GRIGIO, CON 14 INSERTI IN PVC,  (DIS. AS1192F4.1535)",
+    "PREZZO": "€ 135,00"
+  },
+  {
+    "CODICE": "PA.LG.M.0282PV",
+    "DESCRIZIONE": "SPALLA DOGATA GRIGIO RAL 7035 165+25X40 base legno - PANNELLO IN NOBILITATO SP. 25 MM GRIGIO CHIARO SIMIL RAL 7035 DIM. 425X1794 MM , 4 LATI BORDO ABS GRIGIO RAL 7035 CON 18 INSERTI IN PVC (DIS. AS1192F4GC.1794)",
+    "PREZZO": "€ 153,07"
+  },
+  {
+    "CODICE": "PA.LG.M.0282L",
+    "DESCRIZIONE": "SPALLA LISCIA GRIGIO RAL 7035 165+25X40 - PANNELLO IN NOBILITATO SP. 25 MM GRIGIO CHIARO SIMIL RAL 7035 DIM. 425X1794 MM , 4 LATI BORDO ABS GRIGIO RAL 7035 LISCIO (DIS. AS1544.1794)",
+    "PREZZO": "€ 98,80"
+  },
+  {
+    "CODICE": "PA.LG.M.0283PV",
+    "DESCRIZIONE": "SPALLA DOGATA GRIGIO RAL 7035 210X40 - PANNELLO IN NOBILITATO SP. 25 MM GRIGIO SILVER RAL 7035 DIM. 425X1995 MM  4 LATI BORDO ABS GRIGIO SILVER RAL 7035 CON 18 INSERTI IN PVC (DIS. AS1192A4.1995)",
+    "PREZZO": "€ 136,00"
+  },
+{
+    "CODICE": "PA.LG.M.0446.G1",
+    "DESCRIZIONE": "SPALLA DOGATA GRIGIO RAL  265X40 base legno (INGRESSO CANCELLETTO/PROFUMERIA) - PANNELLO IN NOBILITATO SP.25 GRIGIO RAL 7035 DIM. 425X2515 MM,4 LATI BORDO ABS GRIGIO,CON 18 INSERTI IN ALLUMINIO (DIS. AS1192F4.2515)",
+    "PREZZO": "€ 243,55"
+  },
+{
+    "CODICE": "PA.LG.X.0012.7035",
+    "DESCRIZIONE": "PROLUNGA SPALLA GRIGIO RAL 7035 - 40X25 - PANNELLO IN NOBILITATO SP. 25mm GRIGIO RAL 7035 DIM. 425X250mm",
+    "PREZZO": "€ 38,90"
+  }
+
+                        "ACCESSORIO FISSAGGIO SPALLA": [
+                            {
+    "CODICE": "AC.AR.PA.ME.0001-B1L",
+    "DESCRIZIONE": "PIASTRA PER FISSAGGIO PANNELLI A MONTANTE PASSO 36MM DIM.43X100 SP.15/10",
+    "PREZZO": "€ 0,98"
+  }
+}
+
+                        ],
+},                "BANCHI CASSA E ACCESSORI": {
+                    "categorie": {
+                        "BANCHI CASSA ": [
+{ 
+    "CODICE": "ESPOS.29.LMVF.08.BI",
+    "DESCRIZIONE": "BANCO CASSA , IN METALLO VERNICIATO BIANCO  RAL.9016 , SINGOLO Mod. \"A1\" SX DIM. MM2900X1100X850 COMPLETO DI VASCA DOPPIA E CON PORTELLO ANTIPANICO",
+    "PREZZO": "€ 3.536,00"
+  },
+{
+    "CODICE": "ESPOS.29.LMVF.11.BI",
+    "DESCRIZIONE": "BANCO CASSA , IN METALLO VERNICIATO Bianco Lucido Ral 9016 , SINGOLO Mod. \"A1\" DX DIM. MM2900X1100X850 COMPLETO DI VASCA DOPPIA E CON PORTELLO ANTIPANICO CON BATTICARELLO COLORE NERO",
+    "PREZZO": "€ 3.536,00"
+  },
+{
+    "CODICE": "ESPOS.29.LMVF.12.BI",
+    "DESCRIZIONE": "BANCO CASSA, IN METALLO VERNICIATO BIANCO LUCIDO RAL 9016, SINGOLO MOD. \"B1\" SX DIM. mm 2900X900X850 COMPLETO DI VASCA SINGOLA E CON PORTELLO ANTIPANICO",
+    "PREZZO": "€ 3.536,00"
+  },
+ {
+    "CODICE": "ESPOS.29.LMVF.10.BI",
+    "DESCRIZIONE": "BANCO CASSA, IN METALLO VERNICIATO BIANCO LUCIDO RAL 9016, SINGOLO MOD. \"B1\" DX DIM. mm 2900X900X850 COMPLETO DI VASCA SINGOLA E CON PORTELLO ANTIPANICO",
+    "PREZZO": "€ 3.536,00"
+  },
+{
+    "CODICE": "ESPOS.27.LMVF.08.BI",
+    "DESCRIZIONE": "BANCO CASSA , IN METALLO VERNICIATO Bianco Lucido Ral 9016, SINGOLO Mod. \"A1\" SX DIM. MM2700X1100X850 COMPLETO DI  VASCA DOPPIA E CON PORTELLO ANTIPANICO",
+    "PREZZO": "€ 3.536,00"
+  },
+{
+    "CODICE": "ESPOS.27.LMVF.09.BI",
+    "DESCRIZIONE": "BANCO CASSA , IN METALLO VERNICIATO Bianco Lucido Ral 9016, SINGOLO Mod. \"A1\" DX DIM. MM2700X1100X850 COMPLETO DI  VASCA DOPPIA E CON PORTELLO ANTIPANICO",
+    "PREZZO": "€ 3.536,00"
+  },
+ {
+    "CODICE": "ESPOS.27.LMVF.12.BI",
+    "DESCRIZIONE": "BANCO CASSA , IN METALLO VERNICIATO BIANCO RAL.9016 , SINGOLO Mod. \"B1\" SX DIM. MM2700X1100X850 COMPLETO DI VASCA SINGOLA E CON PORTELLO ANTIPANICO",
+    "PREZZO": "€ 3.536,00"
+  },
+{
+    "CODICE": "ESPOS.27.LMVF.18.BI",
+    "DESCRIZIONE": "BANCO CASSA , IN METALLO VERNICIATO BIANCO RAL.9016 , SINGOLO Mod. \"B1\" DX DIM. MM2700X1100X850 COMPLETO DI VASCA SINGOLA E CON PORTELLO ANTIPANICO",
+    "PREZZO": "€ 3.536,00"
+  },
+{
+    "CODICE": "ESPOS.23.LMVF.13.BI",
+    "DESCRIZIONE": "BANCO CASSA , IN METALLO VERNICIATO BIANCO RAL.9016 , SINGOLO Mod. \"C1\" SX DIM. MM2300X1100X850 COMPLETO DI VASCA SINGOLA E CON PORTELLO ANTIPANICO",
+    "PREZZO": "€ 3.536,00"
+  },
+{
+    "CODICE": "ESPOS.23.LMVF.14.BI",
+    "DESCRIZIONE": "BANCO CASSA , IN METALLO VERNICIATO BIANCO RAL.9016 , SINGOLO Mod. \"C1\" DX DIM. MM2300X1100X850 COMPLETO DI VASCA SINGOLA E CON PORTELLO ANTIPANICO",
+    "PREZZO": "€ 3.536,00"
+  },
+{
+    "CODICE": "ESPOS.MC1.LMVF.BI",
+    "DESCRIZIONE": "BANCO CASSA MINI SINISTRO, IN METALLO VERNICIATO BIANCO RAL.9016, DIM. MM 1400X1400X850 COMPLETO DI NASTRO TRASPORTATORE E VASCA SINGOLA.",
+    "PREZZO": "€ 2.860,00"
+  },
+  {
+    "CODICE": "ESPOS.MC2.LMVF.BI",
+    "DESCRIZIONE": "BANCO CASSA MINI DESTRO, IN METALLO VERNICIATO BIANCO RAL.9016, DIM. MM 1400X1400X850 COMPLETO DI NASTRO TRASPORTATORE E VASCA SINGOLA.",
+    "PREZZO": "€ 2.860,00"
+  }
+
+
+                        "ACCESSORI BANCO CASSA": [
+  "CODICE": "ESPOS.XX.LMVF.08.A.BI",
+    "DESCRIZIONE": "Palo per Banco Cassa in metallo verniciato Bianco Lucido Ral 9016 - L 70 x P 40 x H 350 cm",
+    "PREZZO": "€ 0,00"
+  },
+{
+    "CODICE": "ESPOS.XX.LMVF.AS29.BI",
+    "DESCRIZIONE": "PROLUNGA PER PALO CASSA H.1000MM VERNICIATA \nBIANCO LUCIDO RAL 9016",
+    "PREZZO": "€ 96,39"
+  },
+
+{
+    "CODICE": "ESPOS.XX.LMVF.AS19",
+    "DESCRIZIONE": "Supporto Monitor \"New",
+    "PREZZO": "€ 0,00"
+  },
+{
+    "CODICE": "SGABELLO.502",
+    "DESCRIZIONE": "Sgabello con sedile in poliuretano  mod. \"Alzo Gas\" con Poggiapiedi regolabile (Tulip)POGGIAPIEDI REGOLABILE (TULIP)",
+    "PREZZO": "€ 119,70"
+  },
+ "CODICE": "SGABELLO.515",
+    "DESCRIZIONE": "Sgabello girevole \"Alzo Gas\" con movimento schienale e poggiapiedi regolabile. Rivestimento in tessuto colore NERO. Dimens. Max 61x123 cm",
+    "PREZZO": "€ 133,21"
+  },
+{
+    "CODICE": "MOBIL.XX.LMVF.03",
+    "DESCRIZIONE": "MOBILETTO PER CASSA PORTA SHOPPERS VERNICIATO COLORE NERO RAL 9005 OPACO CON 4 RUOTE, ASOLE LATERALI ER 2 RIPIANI REMOVIBILI DIS. A000258",
+    "PREZZO": "€ 98,88"
+  },
+{
+    "CODICE": "PX.ES.MX.0414",
+    "DESCRIZIONE": "Numero \"1\" con attacco dx per banco cassa sx pannello plexiglass trasparente sp.12mm bordi esterni lucidi dim. 170x286 mm decorato con adesivo sabbiato e intagliato dis. AS1172A.SX",
+    "PREZZO": "€ 119,80"
+  },
+  {
+    "CODICE": "PX.ES.MX.0415",
+    "DESCRIZIONE": "Numero \"2\" con attacco dx per banco cassa sx pannello plexiglass trasparente sp.12mm bordi esterni lucidi dim. 170x286 mm decorato con adesivo sabbiato e intagliato dis. AS1172B.SX",
+    "PREZZO": "€ 119,80"
+  },
+  {
+    "CODICE": "PX.ES.MX.0416",
+    "DESCRIZIONE": "Numero \"3\" con attacco dx per banco cassa sx pannello plexiglasstrasparente sp.12mm bordi esterni lucidi dim. 170x286 mm decorato con adesivo sabbiato e intagliato dis. AS1172C.SX",
+    "PREZZO": "€ 119,80"
+  },
+  {
+    "CODICE": "PX.ES.MX.0428",
+    "DESCRIZIONE": "Numero \"4\" con attacco dx per banco cassa sx pannello plexiglass trasparente sp.12mm bordi esterni lucidi dim. 170x286 mm decorato con adesivo sabbiato e intagliato dis. AS1172D.SX",
+    "PREZZO": "€ 119,80"
+  },
+  {
+    "CODICE": "PX.ES.MX.0420",
+    "DESCRIZIONE": "Numero \"1\" con attacco sx per banco cassa dx pannello plexiglass trasparente sp.12mm bordi esterni lucidi dim. 170x286 mm decorato con adesivo sabbiato e intagliato dis. AS1172A.DX",
+    "PREZZO": "€ 119,80"
+  },
+  {
+    "CODICE": "PX.ES.MX.0421",
+    "DESCRIZIONE": "Numero \"2\" con attacco sx per banco cassa dx pannello plexiglass trasparente sp.12mm bordi esterni lucidi dim. 170x286 mm decorato con adesivo sabbiato e intagliato dis. AS1172B.DX",
+    "PREZZO": "€ 119,80"
+  },
+  {
+    "CODICE": "PX.ES.MX.0422",
+    "DESCRIZIONE": "Numero \"3\" con attacco sx per banco cassa dx pannello plexiglass trasparente sp.12mm bordi esterni lucidi dim. 170x286 mm decorato con adesivo sabbiato e intagliato dis. AS1172C.DX",
+    "PREZZO": "€ 119,80"
+  },
+  {
+    "CODICE": "PX.ES.MX.0427",
+    "DESCRIZIONE": "Numero \"4\" con attacco sx per banco cassa dx pannello plexiglass trasparente sp.12mm bordi esterni lucidi dim. 170x286 mm decorato con adesivo sabbiato e intagliato dis. AS1172D.DX",
+    "PREZZO": "€ 119,80"
+  },
+  {
+    "CODICE": "ESPOS.XX.LMVF.AS53",
+    "DESCRIZIONE": "Deviatore prodotti per banco cassa sx verniciato ral 7035 dis. A00184.SX",
+    "PREZZO": "€ 15,51"
+  },
+  {
+    "CODICE": "ESPOS.XX.LMVF.AS54",
+    "DESCRIZIONE": "Deviatore prodotti per banco cassa dx verniciato ral 7035 dis. A00184.DX",
+    "PREZZO": "€ 15,51"
+  }
+                        ]
+                    }
+                },
+                "AVANCASSA E ATTACCO TENDINASTRO": {
+                    "categorie": {
+
+                        "AVANCASSA STANDARD": [
+                            {
+   "CODICE": "ESPOS.XX.LMVF.AS36.BI",
+    "DESCRIZIONE": "Espositore Avancassa in lamiera verniciata Bianco (solo parte inferiore) - L 77 x P 50 x H 85 cm",
+    "PREZZO": "€ 176,24"
+  },
+{
+
+                        "AVANCASSA MINI": [
+},
+{
+
+			"ATTACCO TENDINASTRO": [
+{
+    "CODICE": "PN.STOP54",
+    "DESCRIZIONE": "Attacco tendinastro a muro - Nastro colore Nero L 300 cm",
+    "PREZZO": "€ 45,89"
+  },
+  {
+    "CODICE": "PN.STOP60",
+    "DESCRIZIONE": "CLIP RICEVENTE A MURO PER PN.STOP54",
+    "PREZZO": "€ 4,95"
+  }
+
+ ]
+                    }
+                },
+                "UFFICIO": {
+                    "categorie": {
+
+                        "UFFICIO E PANNELLATURA": [
+{
+    "CODICE": "ASBXU.LG.01",
+    "DESCRIZIONE": "MOBILE PER BOX UFFICIO PORTA STAMPANTE IN NOBILITATO SCOCCA+TOP+RIPIANO INTERNO COLORE NERO E DUE ANTE BATTENTE COLORE BIANCO F.TO 600X650XH600 MM (DIS. ASBXU.LG.01)",
+    "PREZZO": "€ 262,05"
+  },
+  {
+    "CODICE": "ASBXU.LG.02",
+    "DESCRIZIONE": "MOBILE PER BOX UFFICIO IN NOBILITATO SCOCCA+TOP+RIPIANO INTERNO COLORE NERO E DUE ANTE BATTENTE COLORE BIANCO F.TO 600X650XH920 MM (DIS. ASBXU.LG.02)",
+    "PREZZO": "€ 321,00"
+  },
+  {
+    "CODICE": "ASBXU.LG.03",
+    "DESCRIZIONE": "MOBILE PER BOX UFFICIO AD ANGOLO IN NOBILITATO COLORE NERO F.TO 650X650XH920 MM (DIS. ASBXU.LG.03)",
+    "PREZZO": "€ 234,15"
+  },
+  {
+    "CODICE": "ASBXU.LG.04",
+    "DESCRIZIONE": "MOBILE PER BOX UFFICIO IN NOBILITATO SCOCCA+TOP+RIPIANI INTERNI COLORE NERO E DUE ANTE SCORREVOLI COLORE BIANCO F.TO 900X650XH920 MM (DIS. ASBXU.LG.04)",
+    "PREZZO": "€ 354,00"
+  },
+  {
+    "CODICE": "ASBXU.LG.05",
+    "DESCRIZIONE": "MOBILE PER BOX UFFICIO IN NOBILITATO SCOCCA+TOP+RIPIANI INTERNI COLORE NERO E DUE ANTE SCORREVOLI COLORE BIANCO F.TO 1200X650XH920 MM (DIS. ASBXU.LG.05)",
+    "PREZZO": "€ 388,00"
+  },
+  {
+    "CODICE": "ASBXU.LG.06",
+    "DESCRIZIONE": "FIANCO UFFICIO IN NOBILITATO BIANCO SP. 18 MM F.TO 700XH1250 CON ANGOLO STONDATO E BORDATO ABS 1 MM BIANCO SU 3 LATI (DIS. ASBXU.LG.06)",
+    "PREZZO": "€ 66,90"
+  },
+  {
+    "CODICE": "ASBXU.LG.07",
+    "DESCRIZIONE": "(MOBILE UFFICIO CON TOP DA 70CM) - MOBILE PER BOX UFFICIO IN NOBILITATO SCOCCA+TOP+RIPIANO INTERNO COLORE NERO E DUE ANTE BATTENTE COLORE BIANCO F.TO 600X700XH920 MM (DIS. ASBXU.LG.07)",
+    "PREZZO": "€ 371,00"
+  },
+  {
+    "CODICE": "AS1702.LG",
+    "DESCRIZIONE": "PANNELLI CHIUSURA BOX UFFICIO AD \"L\" IN NOBILITATO BIANCO SP. 18 MM F.TO 1578X680XH1250 BORDATO ABS 1 MM BIANCO E COMPLETO DI SPINE PER AG (DIS. AS1702.LG)",
+    "PREZZO": "€ 150,05"
+  },
+  {
+    "CODICE": "AS1711.LG",
+    "DESCRIZIONE": "PANNELLO IN NOBILITATO BIANCO 832XH1250 - BORDATO 4 LATI ABS 1mm (DIS. AS1711.LG)",
+    "PREZZO": "€ 96,00"
+  },
+  {
+    "CODICE": "AS1712.LG",
+    "DESCRIZIONE": "PANNELLO IN NOBILITATO BIANCO 2280XH1250 - BORDATO 4 LATI ABS 1mm (DIS. AS1712.LG)",
+    "PREZZO": "€ 183,00"
+  },
+  {
+    "CODICE": "AS1713.LG",
+    "DESCRIZIONE": "PANNELLO CHIUSURA BOX UFFICIO IN NOBILITATO BIANCO - 1220XH1250 - BORDATO 4 LATI ABS 1mm (DIS. AS1713.LG)",
+    "PREZZO": "€ 121,00"
+  },
+  {
+    "CODICE": "AS1714.LG",
+    "DESCRIZIONE": "PANNELLO IN NOBILITATO BIANCO 2820XH1250 - BORDATO 4 LATI ABS 1mm (DIS. AS1714.LG)",
+    "PREZZO": "€ 213,00"
+  },
+  {
+    "CODICE": "AS1715.LG",
+    "DESCRIZIONE": "PANNELLO IN NOBILITATO BIANCO 1270XH1250 - BORDATO 4 LATI ABS 1mm (DIS. AS1715.LG)",
+    "PREZZO": "€ 122,00"
+  },
+  {
+    "CODICE": "AS1716.LG",
+    "DESCRIZIONE": "PANNELLO IN NOBILITATO BIANCO 300XH1250 - BORDATO 4 LATI ABS 1mm (DIS. AS1716.LG) CON ANGOLO STONDATO",
+    "PREZZO": "€ 75,00"
+  },
+  {
+    "CODICE": "AS1717.LG",
+    "DESCRIZIONE": "PANNELLO IN NOBILITATO BIANCO 1910XH1250 - BORDATO 4 LATI ABS 1mm (DIS. AS1717.LG)",
+    "PREZZO": "€ 160,00"
+  },
+  {
+    "CODICE": "AS1718.LG",
+    "DESCRIZIONE": "PANNELLO IN NOBILITATO BIANCO 1370XH1250 - BORDATO 4 LATI ABS 1mm (DIS. AS1718.LG)",
+    "PREZZO": "€ 128,00"
+  },
+  {
+    "CODICE": "AS1719.LG",
+    "DESCRIZIONE": "PANNELLO IN NOBILITATO BIANCO 1000XH1250 - BORDATO 4 LATI ABS 1mm (DIS. AS1719.LG)",
+    "PREZZO": "€ 106,00"
+  },
+  {
+    "CODICE": "AS1720.LG",
+    "DESCRIZIONE": "PANNELLO IN NOBILITATO BIANCO 2180XH1250 - BORDATO 4 LATI ABS 1mm (DIS. AS1720.LG)",
+    "PREZZO": "€ 178,00"
+  },
+  {
+    "CODICE": "AS1721.LG",
+    "DESCRIZIONE": "PANNELLO IN NOBILITATO BIANCO 1800XH1250 - BORDATO 4 LATI ABS 1mm (DIS. AS1721.LG) CON ANGOLO STONDATO",
+    "PREZZO": "€ 284,00"
+  },
+  {
+    "CODICE": "AS1722.LG",
+    "DESCRIZIONE": "PANNELLO IN NOBILITATO BIANCO 2520XH1250 - BORDATO 4 LATI ABS 1mm (DIS. AS1722.LG)",
+    "PREZZO": "€ 190,00"
+  },
+  {
+    "CODICE": "AS1723.LG",
+    "DESCRIZIONE": "PANNELLO IN NOBILITATO BIANCO 1600XH1250 - BORDATO 4 LATI ABS 1mm (DIS. AS1723.LG)",
+    "PREZZO": "€ 154,00"
+  },
+  {
+    "CODICE": "AS1724.LG",
+    "DESCRIZIONE": "PANNELLO IN NOBILITATO BIANCO 1200XH1250 - BORDATO 4 LATI ABS 1mm (DIS. AS1724.LG) CON ANGOLO STONDATO",
+    "PREZZO": "€ 145,00"
+  },
+  {
+    "CODICE": "AS1725.LG",
+    "DESCRIZIONE": "PANNELLO IN NOBILITATO BIANCO 3100XH1250 - BORDATO 4 LATI ABS 1mm (DIS. AS1725.LG)",
+    "PREZZO": "€ 408,00"
+  },
+  {
+    "CODICE": "AS1728.LG",
+    "DESCRIZIONE": "PANNELLO IN NOBILITATO BIANCO 900XH1250 - BORDATO 4 LATI ABS 1mm (DIS. AS1728.LG) CON ANGOLO STONDATO",
+    "PREZZO": "€ 140,00"
+  },
+  {
+    "CODICE": "AS1730.LG",
+    "DESCRIZIONE": "PANNELLO IN NOBILITATO BIANCO 1290XH1250 - BORDATO 4 LATI ABS 1mm (DIS. AS1730.LG)",
+    "PREZZO": "€ 124,00"
+  },
+  {
+    "CODICE": "AS1731.LG",
+    "DESCRIZIONE": "PANNELLO IN NOBILITATO BIANCO 2770XH1250 - BORDATO 4 LATI ABS 1mm (DIS. AS1731.LG)",
+    "PREZZO": "€ 204,00"
+  },
+  {
+    "CODICE": "AS1732.LG",
+    "DESCRIZIONE": "PANNELLO IN NOBILITATO BIANCO 640XH1250 - BORDATO 4 LATI ABS 1mm (DIS. AS1732.LG)",
+    "PREZZO": "€ 113,00"
+  },
+  {
+    "CODICE": "AS1733.LG",
+    "DESCRIZIONE": "PANNELLO IN NOBILITATO BIANCO 940XH1250 - BORDATO 4 LATI ABS 1mm (DIS. AS1733.LG)",
+    "PREZZO": "€ 120,00"
+  },
+  {
+    "CODICE": "AS1735.LG",
+    "DESCRIZIONE": "PANNELLO IN NOBILITATO BIANCO 2490XH1250 - BORDATO 4 LATI ABS 1mm (DIS. AS1735.LG)",
+    "PREZZO": "€ 188,00"
+  },
+  {
+    "CODICE": "AS1736.LG",
+    "DESCRIZIONE": "PANNELLO IN NOBILITATO BIANCO 2190XH1250 - BORDATO 4 LATI ABS 1mm (DIS. AS1736.LG)",
+    "PREZZO": "€ 179,00"
+  },
+  {
+    "CODICE": "AS1737.LG",
+    "DESCRIZIONE": "PANNELLO IN NOBILITATO BIANCO 1870XH1250 - BORDATO 4 LATI ABS 1mm (DIS. AS1737.LG)",
+    "PREZZO": "€ 158,00"
+  },
+  {
+    "CODICE": "AS1745.LG",
+    "DESCRIZIONE": "PANNELLO IN NOBILITATO BIANCO 1650X1250 SP. 18 MM BORDATO SUI 4 LATI (Dis. AS1745.LG)",
+    "PREZZO": "€ 156,00"
+  },
+  {
+    "CODICE": "AS1746.LG",
+    "DESCRIZIONE": "PANNELLO IN NOBILITATO BIANCO 1540X1250 SP. 18 MM BORDATO SUI 4 LATI (Dis. AS1746.LG)",
+    "PREZZO": "€ 150,00"
+  },
+  {
+    "CODICE": "AS1747.LG",
+    "DESCRIZIONE": "PANNELLO IN NOBILITATO BIANCO 1570X1250 SP. 18 MM BORDATO SUI 4 LATI (Dis. AS1747.LG)",
+    "PREZZO": "€ 154,00"
+  },
+  {
+    "CODICE": "AS1748.LG",
+    "DESCRIZIONE": "PANNELLO IN NOBILITATO BIANCO 2140XH1250 - BORDATO 4 LATI ABS 1mm (DIS. AS1748.LG)",
+    "PREZZO": "€ 176,00"
+  },
+  {
+    "CODICE": "AS1752.LG",
+    "DESCRIZIONE": "PANNELLO IN NOBILITATO BIANCO 1590X1250 SP. 18 MM BORDATO SUI 4 LATI (Dis. AS1752.LG)",
+    "PREZZO": "€ 154,00"
+  },
+  {
+    "CODICE": "AS1753.LG",
+    "DESCRIZIONE": "PANNELLO IN NOBILITATO BIANCO 3090XH1250 - BORDATO 4 LATI ABS 1mm (DIS. AS1753.LG)",
+    "PREZZO": "€ 408,00"
+  },
+  {
+    "CODICE": "AS1759.LG",
+    "DESCRIZIONE": "PANNELLO IN NOBILITATO BIANCO 3370XH1250 - BORDATO 4 LATI ABS 1mm (DIS. AS1759.LG)",
+    "PREZZO": "€ 320,00"
+  },
+  {
+    "CODICE": "AS2222F.02",
+    "DESCRIZIONE": "KIT MONTANTE DI RINFORZO PER BOX UFFICIO \nCON TUBO L.1197X45X45 SP. 3 MM VERNICIATO \nBIANCO RAL 9003 OPACO, COMPLETO DI PIASTRA \nALLA BASE E TASSELLI PER FISSAGGIO A TERRA",
+    "PREZZO": "€ 44,50"
+}
+
+                        ]
+                    }
+                }
+            }
+        };
+
+        let preventivo = [];
+        let currentLinea = null;
+
+        function checkLogin() {
+            const pass = document.getElementById('passwordInput').value;
+            if (pass === PASSWORD) {
+                document.getElementById('login-section').classList.add('hidden');
+                document.getElementById('cliente-section').classList.remove('hidden');
+                popolaLinee();
+            } else {
+                alert('Password errata!');
+            }
+        }
+        
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('passwordInput');
+            const toggleIcon = document.querySelector('.toggle-password');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.textContent = '🙈';
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.textContent = '👁️';
+            }
+        }
+
+        function popolaLinee() {
+            const lineaSel = document.getElementById('linea');
+            lineaSel.innerHTML = '';
+            const linee = Object.keys(prodotti.linee).sort();
+            linee.forEach(linea => {
+                const opt = document.createElement('option');
+                opt.value = linea;
+                opt.innerText = linea;
+                lineaSel.appendChild(opt);
+            });
+        }
+
+        function startPreventivo() {
+            const nomePuntoVendita = document.getElementById('nomePuntoVendita').value.trim();
+            const indirizzoPuntoVendita = document.getElementById('indirizzoPuntoVendita').value.trim();
+            const fatturazione = document.getElementById('fatturazione').value.trim();
+            
+            if (!nomePuntoVendita || !indirizzoPuntoVendita || !fatturazione) {
+                alert("Per favore, compila tutti i campi obbligatori: Nome Punto Vendita, Indirizzo Punto Vendita e Fatturazione.");
+                return;
+            }
+
+            currentLinea = document.getElementById('linea').value;
+            mostraProdottiLinea(currentLinea, nomePuntoVendita, indirizzoPuntoVendita, fatturazione);
+            document.getElementById('cliente-section').classList.add('hidden');
+            document.getElementById('preventivo-section').classList.remove('hidden');
+        }
+
+        function mostraProdottiLinea(linea, nomePuntoVendita, indirizzoPuntoVendita, fatturazione) {
+            const prodottiList = document.getElementById('prodotti-list');
+            prodottiList.innerHTML = `<h3>${linea}</h3>`;
+            prodottiList.innerHTML += `<p><strong>Punto Vendita:</strong> ${nomePuntoVendita}</p>`;
+            prodottiList.innerHTML += `<p><strong>Indirizzo:</strong> ${indirizzoPuntoVendita}</p>`;
+            prodottiList.innerHTML += `<p><strong>Fatturazione:</strong> ${fatturazione}</p>`;
+
+            const categorie = Object.keys(prodotti.linee[linea].categorie);
+            categorie.forEach(categoria => {
+                const catDiv = document.createElement('div');
+                catDiv.className = 'category';
+                catDiv.innerHTML = `<strong>${categoria}</strong>`;
+                
+                const prodottiCat = prodotti.linee[linea].categorie[categoria];
+                prodottiCat.forEach(prodotto => {
+                    const productItemDiv = document.createElement('div');
+                    productItemDiv.className = 'product-item';
+                    
+                    const productDetailsSpan = document.createElement('span');
+                    productDetailsSpan.className = 'product-details';
+                    productDetailsSpan.innerText = `${prodotto.codice} - ${prodotto.descrizione} ${prodotto.colore ? '('+prodotto.colore+')' : ''} - €${prodotto.prezzo.toFixed(2)}`;
+                    
+                    const qtyInput = document.createElement('input');
+                    qtyInput.type = "number";
+                    qtyInput.min = "0";
+                    qtyInput.placeholder = "Quantità";
+                    qtyInput.className = "qty-input";
+                    qtyInput.id = `qty-${prodotto.codice.replace(/[\/\.]/g, '-')}`;
+
+                    productItemDiv.appendChild(productDetailsSpan);
+                    productItemDiv.appendChild(qtyInput);
+                    catDiv.appendChild(productItemDiv);
+                });
+                prodottiList.appendChild(catDiv);
+            });
+        }
+
+        function aggiungiLinea() {
+            salvaQuantitaLinea();
+            document.getElementById('preventivo-section').classList.add('hidden');
+            document.getElementById('cliente-section').classList.remove('hidden');
+        }
+
+        function salvaQuantitaLinea() {
+            const dati = { linea: currentLinea, prodotti: [] };
+            const categorie = Object.keys(prodotti.linee[currentLinea].categorie);
+            categorie.forEach(categoria => {
+                const prodottiCat = prodotti.linee[currentLinea].categorie[categoria];
+                prodottiCat.forEach(prodotto => {
+                    const qtyInput = document.getElementById(`qty-${prodotto.codice.replace(/[\/\.]/g, '-')}`);
+                    const qty = parseInt(qtyInput.value) || 0;
+                    
+                    if (qty > 0) {
+                        dati.prodotti.push({
+                            ...prodotto,
+                            categoria,
+                            quantita: qty
+                        });
+                    }
+                });
+            });
+            if (dati.prodotti.length > 0) preventivo.push(dati);
+        }
+
+        function mostraAnteprima() {
+            salvaQuantitaLinea();
+            document.getElementById('preventivo-section').classList.add('hidden');
+            document.getElementById('anteprima-section').classList.remove('hidden');
+            popolaRiepilogo();
+        }
+
+        function popolaRiepilogo() {
+            const nomePuntoVendita = document.getElementById('nomePuntoVendita').value;
+            const indirizzoPuntoVendita = document.getElementById('indirizzoPuntoVendita').value;
+            const fatturazione = document.getElementById('fatturazione').value;
+            const note = document.getElementById('note').value;
+
+            let totaleGenerale = 0;
+            const riepilogoConsolidato = {};
+            preventivo.forEach(lineaPreventivo => {
+                lineaPreventivo.prodotti.forEach(p => {
+                    if (!riepilogoConsolidato[p.codice]) {
+                        riepilogoConsolidato[p.codice] = {
+                            ...p,
+                            quantita: 0,
+                            lineeOrigine: []
+                        };
+                    }
+                    riepilogoConsolidato[p.codice].quantita += p.quantita;
+                    if (!riepilogoConsolidato[p.codice].lineeOrigine.includes(lineaPreventivo.linea)) {
+                        riepilogoConsolidato[p.codice].lineeOrigine.push(lineaPreventivo.linea);
+                    }
+                });
+            });
+
+            let html = `<h3>Riepilogo Preventivo</h3>`;
+            html += `<p><strong>Punto Vendita:</strong> ${nomePuntoVendita}</p>`;
+            html += `<p><strong>Indirizzo:</strong> ${indirizzoPuntoVendita}</p>`;
+            html += `<p><strong>Fatturazione:</strong> ${fatturazione}</p>`;
+            // Le note verranno inserite qui, dopo il riepilogo
+            if (note) {
+                html += `<p><strong>Note:</strong> ${note.replace(/\n/g, '<br>')}</p>`;
+            }
+            html += `<hr>`;
+            html += `<p><strong>Linea Prodotto:</strong> ${preventivo.map(l => l.linea).join(', ')}</p>`;
+            html += `<br>`;
+            html += `<table width="100%" border="0" style="text-align:left"><thead><tr>
+                <th>Codice</th><th>Descrizione</th><th>Quantità</th><th class="align-right">Prezzo Unitario</th><th class="align-right">Totale</th></tr></thead><tbody>`;
+            Object.values(riepilogoConsolidato).forEach(p => {
+                const totaleRiga = p.quantita * p.prezzo;
+                totaleGenerale += totaleRiga;
+                
+                const lineeOrigine = p.lineeOrigine.length > 1 ? `(${p.lineeOrigine.join(', ')})` : '';
+
+                html += `<tr>
+                    <td>${p.codice}</td>
+                    <td>${p.descrizione} ${lineeOrigine}</td>
+                    <td>${p.quantita}</td>
+                    <td class="align-right">€${p.prezzo.toFixed(2)}</td>
+                    <td class="align-right">€${totaleRiga.toFixed(2)}</td>
+                </tr>`;
+            });
+            html += `</tbody></table>`;
+            
+            const iva = totaleGenerale * IVA_RATE;
+            const totaleConIva = totaleGenerale + iva;
+            html += `<br>
+            <p><strong>Subtotale (senza IVA):</strong> <span style="float:right">€${totaleGenerale.toFixed(2)}</span></p>
+            <p><strong>IVA (22%):</strong> <span style="float:right">€${iva.toFixed(2)}</span></p>
+            <h3>Totale Generale: <span style="float:right">€${totaleConIva.toFixed(2)}</span></h3>`;
+            document.getElementById('riepilogo').innerHTML = html;
+        }
+
+        function concludiInvio() {
+            document.getElementById('anteprima-section').classList.add('hidden');
+            document.getElementById('conferma-section').classList.remove('hidden');
+            // La variabile preventivo non viene resettata qui, si svuota solo tornando alla home.
+        }
+        
+        function tornaAllaHome() {
+            document.getElementById('conferma-section').classList.add('hidden');
+            document.getElementById('anteprima-section').classList.add('hidden');
+            document.getElementById('cliente-section').classList.remove('hidden');
+            // Resetta i dati del cliente e il preventivo per una nuova compilazione
+            document.getElementById('nomePuntoVendita').value = '';
+            document.getElementById('indirizzoPuntoVendita').value = '';
+            document.getElementById('fatturazione').value = '';
+            document.getElementById('note').value = ''; // Aggiunto il reset del campo note
+            preventivo = [];
+        }
+
+        function stampaPreventivo() {
+            window.print();
+        }
+
+        function tornaAChoice() {
+            document.getElementById('preventivo-section').classList.add('hidden');
+            document.getElementById('cliente-section').classList.remove('hidden');
+            preventivo = []; // Resetta il preventivo quando si torna indietro
+        }
+
+        function tornaAPreventivo() {
+            document.getElementById('anteprima-section').classList.add('hidden');
+            document.getElementById('conferma-section').classList.add('hidden');
+            document.getElementById('preventivo-section').classList.remove('hidden');
+            // Mantiene il preventivo attuale per eventuali modifiche
+        }
+    </script>
 </body>
 </html>
