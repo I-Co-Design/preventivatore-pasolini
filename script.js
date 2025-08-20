@@ -1,5 +1,5 @@
 
-const codiceAccesso = "PASO2025";
+const codiceAccesso = "PASOLINI2025";
 function verificaCodice() {
     const inserito = document.getElementById("codice").value;
     if (inserito === codiceAccesso) {
