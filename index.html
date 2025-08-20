@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>PREVENTIVATORE CATALOGO PASOLINI</title>
+    <title>PREVENTIVATORE AUTOMATICO PROGETTO PROLUNGHE</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f7f7f7; }
         .container { max-width: 800px; margin: 40px auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px #bbb; padding: 30px; }
@@ -69,18 +69,28 @@
 <body>
     <div class="container">
         <img src="LOGO PASOLINI CC.jpg" class="logo" alt="PASOLINI Logo">
-        <h1>PREVENTIVATORE AUTOMATICO<br>CATALOGO ARREDO</h1>
+        <h1>PREVENTIVATORE AUTOMATICO<br>PROGETTO PROLUNGHE</h1>
 
         <div id="login-section">
-            <div class="form-group">
-                <label for="password">Password</label>
-                <div class="password-container">
-                    <input type="password" id="passwordInput">
-                    <span class="toggle-password" onclick="togglePasswordVisibility()">👁️</span>
-                </div>
-            </div>
-            <button onclick="checkLogin()">Accedi</button>
+    <div class="form-group">
+        <label for="passwordInput">Password</label>
+        <div class="password-container">
+            <input type="password" id="passwordInput">
+            <span class="toggle-password" onclick="togglePasswordVisibility()">👁️</span>
         </div>
+    </div>
+    <button onclick="checkLogin()">Accedi</button>
+</div>
+
+<script>
+    // Permette di premere Invio per confermare la password
+    document.getElementById('passwordInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            checkLogin();
+        }
+    });
+</script>
 
         <div id="cliente-section" class="hidden">
             <div class="form-group">
@@ -149,318 +159,317 @@
         const IVA_RATE = 0.22; // 22%
 
         // Database dei prodotti con i dati forniti
-        const prodotti = {
-            "linee": {
-                "RIPIANI": {
-                    "categorie": {
-                        "RIPIANI": [
-                            {
-    "CODICE": "4320222/8",
-    "DESCRIZIONE": "RIPIANO LAMIERA LISCIO VERNICIATO BIANCO RAL.9010 BUCCIATO AXALTA 750X300 SP. 8/10 DIS. AS2015.750 (SENZA FORI)",
-    "PREZZO": "€ 13,34"
-  },
-  {
-    "CODICE": "4320224/8",
-    "DESCRIZIONE": "Ripiano in lamiera liscio, verniciato bianco RAL 9010 dim. L 100 x P 30 cm SP.8/10",
-    "PREZZO": "€ 16,07"
-  },
-  {
-    "CODICE": "4320424/8",
-    "DESCRIZIONE": "Ripiano in lamiera FORATO, verniciato bianco RAL 9010 dim. L 100 x P 30 cm SP.8/10",
-    "PREZZO": "€ 23,50"
-  },
-  {
-    "CODICE": "4320432/8",
-    "DESCRIZIONE": "PIANO VERNICIATO RAL.9010 BUCCIATO AXALTA  FORATO 750X400 sp.8/10 DIS. AS2009.750",
-    "PREZZO": "€ 14,68"
-  },
-  {
-    "CODICE": "4320232/8",
-    "DESCRIZIONE": "PIANO VERNICIATO BUCCIATO AXALTA RAL.9010  750X400 sp.8/10 DIS. AS2010.750",
-    "PREZZO": "€ 18,24"
-  },
-  {
-    "CODICE": "4320442/8",
-    "DESCRIZIONE": "PIANO VERNICIATO RAL. 9010 BUCCIATO AXALTA FORATO 750X500 sp.8/10",
-    "PREZZO": "€ 21,84"
-  },
-  {
-    "CODICE": "4320242/8",
-    "DESCRIZIONE": "PIANO VERNICIATO RAL.9010 BUCCIATO AXALTA 750X500 SP.8/10",
-    "PREZZO": "€ 18,95"
-  },
-  {
-    "CODICE": "4320452/8",
-    "DESCRIZIONE": "PIANO VERNICIATO FORATO 750X600 sp.8/10 DIS.AS2011.750",
-    "PREZZO": "€ 18,75"
-  },
-  {
-    "CODICE": "4320252/8",
-    "DESCRIZIONE": "PIANO VERNICIATO 750X600 sp.8/10 DIS. AS2012.750",
-    "PREZZO": "€ 18,75"
-  },
-  {
-    "CODICE": "4320434/8",
-    "DESCRIZIONE": "PIANO VERNICIATO RAL.9010 BUCCIATO AXALTA FORATO 100X40 sp.8/10",
-    "PREZZO": "€ 23,46"
-  },
-  {
-    "CODICE": "4320234/8",
-    "DESCRIZIONE": "PIANO VERNICIATO RAL.9010 BUCCIATO AXALTA 100X40 sp.8/10",
-    "PREZZO": "€ 24,80"
-  },
-  {
-    "CODICE": "4320444/8",
-    "DESCRIZIONE": "PIANO VERNICIATO RAL.9010 BUCCIATO AXALTA  FORATO 100X50 SP. 8/10",
-    "PREZZO": "€ 23,45"
-  },
-  {
-    "CODICE": "4320244/8",
-    "DESCRIZIONE": "PIANO VERNICIATO RAL.9010 BUCCIATO AXALTA 100X50 SP. 8/10",
-    "PREZZO": "€ 20,10"
-  },
-  {
-    "CODICE": "4320454/8",
-    "DESCRIZIONE": "PIANO VERNICIATO FORATO 100X60 sp.8/10 DIS.AS2011.1000",
-    "PREZZO": "€ 24,35"
-  },
-  {
-    "CODICE": "4320254/8",
-    "DESCRIZIONE": "PIANO VERNICIATO 100X60 sp.8/10 AS2012.1000",
-    "PREZZO": "€ 21,57"
-  },
-  {
-    "CODICE": "4320226/8",
-    "DESCRIZIONE": "Ripiano in lamiera liscio, verniciato bianco RAL 9010 dim. L 133 x P 30 cm SP.8/10",
-    "PREZZO": "€ 16,65"
-  },
-  {
-    "CODICE": "4320236/8",
-    "DESCRIZIONE": "Ripiano in lamiera liscio, verniciato bianco RAL 9010 dim. L 133 x P 40 cm SP.8/10",
-    "PREZZO": "€ 24,18"
-  },
-  {
-    "CODICE": "4320246/8",
-    "DESCRIZIONE": "Ripiano in lamiera liscio, verniciato bianco RAL 9010 dim. L 133 x P 50 cm SP.8/10",
-    "PREZZO": "€ 28,66"
-  },
-  {
-    "CODICE": "4320256/8",
-    "DESCRIZIONE": "Ripiano in lamiera liscio, verniciato bianco RAL 9010 dim. L 133 x P 60 cm SP.8/10",
-    "PREZZO": "€ 26,28"
-  },
-  {
-    "CODICE": "4320436/8",
-    "DESCRIZIONE": "Ripiano in lamiera forato, verniciato bianco RAL 9010 dim. L 133 x P 40 cm SP.8/10",
-    "PREZZO": "€ 19,47"
-  },
-  {
-    "CODICE": "4320446/8",
-    "DESCRIZIONE": "Ripiano in lamiera forato, verniciato bianco RAL 9010 dim. L 133 x P 50 cm SP.8/10",
-    "PREZZO": "€ 20,74"
-  },
-  {
-    "CODICE": "4320456/8",
-    "DESCRIZIONE": "Ripiano in lamiera forato, verniciato bianco RAL 9010 dim. L 133 x P 60 cm SP.8/10",
-    "PREZZO": "€ 29,28"
-  },
-  {
-    "CODICE": 4320604,
-    "DESCRIZIONE": "RIPIANO LAMIERA LISCIO VERNICIATO RAL.9010 BUCCIATO AXALTA DIM P.300 X ANG. INT. 45° DIS. AS1067A",
-    "PREZZO": "€ 9,24"
-  },
-  {
-    "CODICE": 4320606,
-    "DESCRIZIONE": "Ripiano in lamiera liscio, verniciato bianco RAL 9010 dim. P 40 cm per Angolo Interno 45°",
-    "PREZZO": "€ 12,72"
-  },
-  {
-    "CODICE": 4320608,
-    "DESCRIZIONE": "Ripiano in lamiera liscio, verniciato bianco RAL 9010 dim. P 50 cm per Angolo Interno 45°",
-    "PREZZO": "€ 12,23"
-  },
-  {
-    "CODICE": 4320610,
-    "DESCRIZIONE": "Ripiano in lamiera liscio, verniciato bianco RAL 9010 dim. P 60 cm per Angolo Interno 45°",
-    "PREZZO": "€ 16,80"
-  },
-  {
-    "CODICE": 4320648,
-    "DESCRIZIONE": "Ripiano in lamiera liscio, verniciato bianco RAL 9010 dim. P 50 cm per Angolo esterno 45°",
-    "PREZZO": "€ 23,40"
-  },
-  {
-    "CODICE": "RI.ME.M.0001-B1B",
-    "DESCRIZIONE": "Ripiano in lamiera liscio, verniciato bianco RAL 9010 dim. P 50 cm per Angolo esterno GONDOLA 45°",
-    "PREZZO": "€ 37,50"
-  },
-  {
-    "CODICE": "RI.ME.M.0004-B1B",
-    "DESCRIZIONE": "Ripiano in lamiera liscio, verniciato bianco RAL 9010 dim. P 40 cm per Angolo esterno GONDOLA 45°",
-    "PREZZO": "€ 37,50"
-  }
-                        ]
+       // Database dei prodotti con i dati forniti
+const prodotti = {
+    "linee": {
+        "RIPIANI": {
+            "categorie": {
+                "RIPIANI": [
+                    {
+                        "CODICE": "4320222/8",
+                        "DESCRIZIONE": "RIPIANO LAMIERA LISCIO VERNICIATO BIANCO RAL.9010 BUCCIATO AXALTA 750X300 SP. 8/10 DIS. AS2015.750 (SENZA FORI)",
+                        "PREZZO": "€ 13,34"
+                    },
+                    {
+                        "CODICE": "4320224/8",
+                        "DESCRIZIONE": "Ripiano in lamiera liscio, verniciato bianco RAL 9010 dim. L 100 x P 30 cm SP.8/10",
+                        "PREZZO": "€ 16,07"
+                    },
+                    {
+                        "CODICE": "4320424/8",
+                        "DESCRIZIONE": "Ripiano in lamiera FORATO, verniciato bianco RAL 9010 dim. L 100 x P 30 cm SP.8/10",
+                        "PREZZO": "€ 23,50"
+                    },
+                    {
+                        "CODICE": "4320432/8",
+                        "DESCRIZIONE": "PIANO VERNICIATO RAL.9010 BUCCIATO AXALTA  FORATO 750X400 sp.8/10 DIS. AS2009.750",
+                        "PREZZO": "€ 14,68"
+                    },
+                    {
+                        "CODICE": "4320232/8",
+                        "DESCRIZIONE": "PIANO VERNICIATO BUCCIATO AXALTA RAL.9010  750X400 sp.8/10 DIS. AS2010.750",
+                        "PREZZO": "€ 18,24"
+                    },
+                    {
+                        "CODICE": "4320442/8",
+                        "DESCRIZIONE": "PIANO VERNICIATO RAL. 9010 BUCCIATO AXALTA FORATO 750X500 sp.8/10",
+                        "PREZZO": "€ 21,84"
+                    },
+                    {
+                        "CODICE": "4320242/8",
+                        "DESCRIZIONE": "PIANO VERNICIATO RAL.9010 BUCCIATO AXALTA 750X500 SP.8/10",
+                        "PREZZO": "€ 18,95"
+                    },
+                    {
+                        "CODICE": "4320452/8",
+                        "DESCRIZIONE": "PIANO VERNICIATO FORATO 750X600 sp.8/10 DIS.AS2011.750",
+                        "PREZZO": "€ 18,75"
+                    },
+                    {
+                        "CODICE": "4320252/8",
+                        "DESCRIZIONE": "PIANO VERNICIATO 750X600 sp.8/10 DIS. AS2012.750",
+                        "PREZZO": "€ 18,75"
+                    },
+                    {
+                        "CODICE": "4320434/8",
+                        "DESCRIZIONE": "PIANO VERNICIATO RAL.9010 BUCCIATO AXALTA FORATO 100X40 sp.8/10",
+                        "PREZZO": "€ 23,46"
+                    },
+                    {
+                        "CODICE": "4320234/8",
+                        "DESCRIZIONE": "PIANO VERNICIATO RAL.9010 BUCCIATO AXALTA 100X40 sp.8/10",
+                        "PREZZO": "€ 24,80"
+                    },
+                    {
+                        "CODICE": "4320444/8",
+                        "DESCRIZIONE": "PIANO VERNICIATO RAL.9010 BUCCIATO AXALTA  FORATO 100X50 SP. 8/10",
+                        "PREZZO": "€ 23,45"
+                    },
+                    {
+                        "CODICE": "4320244/8",
+                        "DESCRIZIONE": "PIANO VERNICIATO RAL.9010 BUCCIATO AXALTA 100X50 SP. 8/10",
+                        "PREZZO": "€ 20,10"
+                    },
+                    {
+                        "CODICE": "4320454/8",
+                        "DESCRIZIONE": "PIANO VERNICIATO FORATO 100X60 sp.8/10 DIS.AS2011.1000",
+                        "PREZZO": "€ 24,35"
+                    },
+                    {
+                        "CODICE": "4320254/8",
+                        "DESCRIZIONE": "PIANO VERNICIATO 100X60 sp.8/10 AS2012.1000",
+                        "PREZZO": "€ 21,57"
+                    },
+                    {
+                        "CODICE": "4320226/8",
+                        "DESCRIZIONE": "Ripiano in lamiera liscio, verniciato bianco RAL 9010 dim. L 133 x P 30 cm SP.8/10",
+                        "PREZZO": "€ 16,65"
+                    },
+                    {
+                        "CODICE": "4320236/8",
+                        "DESCRIZIONE": "Ripiano in lamiera liscio, verniciato bianco RAL 9010 dim. L 133 x P 40 cm SP.8/10",
+                        "PREZZO": "€ 24,18"
+                    },
+                    {
+                        "CODICE": "4320246/8",
+                        "DESCRIZIONE": "Ripiano in lamiera liscio, verniciato bianco RAL 9010 dim. L 133 x P 50 cm SP.8/10",
+                        "PREZZO": "€ 28,66"
+                    },
+                    {
+                        "CODICE": "4320256/8",
+                        "DESCRIZIONE": "Ripiano in lamiera liscio, verniciato bianco RAL 9010 dim. L 133 x P 60 cm SP.8/10",
+                        "PREZZO": "€ 26,28"
+                    },
+                    {
+                        "CODICE": "4320436/8",
+                        "DESCRIZIONE": "Ripiano in lamiera forato, verniciato bianco RAL 9010 dim. L 133 x P 40 cm SP.8/10",
+                        "PREZZO": "€ 19,47"
+                    },
+                    {
+                        "CODICE": "4320446/8",
+                        "DESCRIZIONE": "Ripiano in lamiera forato, verniciato bianco RAL 9010 dim. L 133 x P 50 cm SP.8/10",
+                        "PREZZO": "€ 20,74"
+                    },
+                    {
+                        "CODICE": "4320456/8",
+                        "DESCRIZIONE": "Ripiano in lamiera forato, verniciato bianco RAL 9010 dim. L 133 x P 60 cm SP.8/10",
+                        "PREZZO": "€ 29,28"
+                    },
+                    {
+                        "CODICE": "4320604",
+                        "DESCRIZIONE": "RIPIANO LAMIERA LISCIO VERNICIATO RAL.9010 BUCCIATO AXALTA DIM P.300 X ANG. INT. 45° DIS. AS1067A",
+                        "PREZZO": "€ 9,24"
+                    },
+                    {
+                        "CODICE": "4320606",
+                        "DESCRIZIONE": "Ripiano in lamiera liscio, verniciato bianco RAL 9010 dim. P 40 cm per Angolo Interno 45°",
+                        "PREZZO": "€ 12,72"
+                    },
+                    {
+                        "CODICE": "4320608",
+                        "DESCRIZIONE": "Ripiano in lamiera liscio, verniciato bianco RAL 9010 dim. P 50 cm per Angolo Interno 45°",
+                        "PREZZO": "€ 12,23"
+                    },
+                    {
+                        "CODICE": "4320610",
+                        "DESCRIZIONE": "Ripiano in lamiera liscio, verniciato bianco RAL 9010 dim. P 60 cm per Angolo Interno 45°",
+                        "PREZZO": "€ 16,80"
+                    },
+                    {
+                        "CODICE": "4320648",
+                        "DESCRIZIONE": "Ripiano in lamiera liscio, verniciato bianco RAL 9010 dim. P 50 cm per Angolo esterno 45°",
+                        "PREZZO": "€ 23,40"
+                    },
+                    {
+                        "CODICE": "RI.ME.M.0001-B1B",
+                        "DESCRIZIONE": "Ripiano in lamiera liscio, verniciato bianco RAL 9010 dim. P 50 cm per Angolo esterno GONDOLA 45°",
+                        "PREZZO": "€ 37,50"
+                    },
+                    {
+                        "CODICE": "RI.ME.M.0004-B1B",
+                        "DESCRIZIONE": "Ripiano in lamiera liscio, verniciato bianco RAL 9010 dim. P 40 cm per Angolo esterno GONDOLA 45°",
+                        "PREZZO": "€ 37,50"
                     }
-                },
-                "MENSOLE": {
-                    "categorie": {
-
-                        "MENSOLE": [
-                            {
-    "CODICE": 4360004,
-    "DESCRIZIONE": "Mensola in lamiera, a 3 ganci, verniciata bianco RAL 9010, per piano lamiera P 30 cm",
-    "PREZZO": "€ 4,78"
-  },
-  {
-    "CODICE": 4360026,
-    "DESCRIZIONE": "Mensola in lamiera, a 4 ganci, verniciata bianco RAL 9010, per piano lamiera P 40 cm",
-    "PREZZO": "€ 4,23"
-  },
-  {
-    "CODICE": 4360028,
-    "DESCRIZIONE": "Mensola in lamiera, a 4 ganci, verniciata bianco RAL 9010, per piano lamiera P 50 cm",
-    "PREZZO": "€ 3,95"
-  },
-  {
-    "CODICE": 4360030,
-    "DESCRIZIONE": "Mensola in lamiera, a 4 ganci, verniciata bianco RAL 9010, per piano lamiera P 60 cm",
-    "PREZZO": "€ 5,15"
-  }
-                        ]
+                ]
+            }
+        },
+        "MENSOLE": {
+            "categorie": {
+                "MENSOLE": [
+                    {
+                        "CODICE": "4360004",
+                        "DESCRIZIONE": "Mensola in lamiera, a 3 ganci, verniciata bianco RAL 9010, per piano lamiera P 30 cm",
+                        "PREZZO": "€ 4,78"
+                    },
+                    {
+                        "CODICE": "4360026",
+                        "DESCRIZIONE": "Mensola in lamiera, a 4 ganci, verniciata bianco RAL 9010, per piano lamiera P 40 cm",
+                        "PREZZO": "€ 4,23"
+                    },
+                    {
+                        "CODICE": "4360028",
+                        "DESCRIZIONE": "Mensola in lamiera, a 4 ganci, verniciata bianco RAL 9010, per piano lamiera P 50 cm",
+                        "PREZZO": "€ 3,95"
+                    },
+                    {
+                        "CODICE": "4360030",
+                        "DESCRIZIONE": "Mensola in lamiera, a 4 ganci, verniciata bianco RAL 9010, per piano lamiera P 60 cm",
+                        "PREZZO": "€ 5,15"
                     }
-                },
-                "PORTAPREZZI": {
-                    "categorie": {
-
-                        "PORTAPREZZI": [
-                            {
-    "CODICE": "MPS.42.0742.GL",
-    "DESCRIZIONE": "Porta scanner in PVC colore Giallo, per ripiano in lamiera L 75 x H 3,9 cm",
-    "PREZZO": "€ 1,91"
-  },
-  {
-    "CODICE": "MPS.42.0992.GL",
-    "DESCRIZIONE": "Porta scanner in PVC colore Giallo, per ripiano in lamiera L 100 x H 3,9 cm",
-    "PREZZO": "€ 2,44"
-  },
-  {
-    "CODICE": "MPS.42.1318.GL",
-    "DESCRIZIONE": "Porta scanner in PVC colore Giallo, per ripiano in lamiera L 131,8 x H 3,9 cm",
-    "PREZZO": "€ 2,71"
-  },
-  {
-    "CODICE": "MPS.42.0742.RO",
-    "DESCRIZIONE": "Porta scanner in PVC colore Rosa, per ripiano in lamiera L 75 x H 3,9 cm",
-    "PREZZO": "€ 1,91"
-  },
-  {
-    "CODICE": "MPS.42.0992.RO",
-    "DESCRIZIONE": "Porta scanner in PVC colore Rosa, per ripiano in lamiera L 100 x H 3,9 cm",
-    "PREZZO": "€ 2,44"
-  },
-  {
-    "CODICE": "MPS.42.1318.RO",
-    "DESCRIZIONE": "Porta scanner in PVC colore Rosa, per ripiano in lamiera L 131,8 x H 3,9 cm",
-    "PREZZO": "€ 2,71"
-  },
-  {
-    "CODICE": "MPS.42.0742.BL",
-    "DESCRIZIONE": "Porta scanner in PVC colore Blu, per ripiano in lamiera L 75 x H 3,9 cm",
-    "PREZZO": "€ 1,68"
-  },
-  {
-    "CODICE": "MPS.42.0992.BL",
-    "DESCRIZIONE": "Porta scanner in PVC colore Blu, per ripiano in lamiera L 100 x H 3,9 cm",
-    "PREZZO": "€ 2,15"
-  },
-  {
-    "CODICE": "MPS.42.0259.GL",
-    "DESCRIZIONE": "Porta scanner in PVC colore Giallo, per ripiano in Lamiera P 30 cm Ang. Int. 45°",
-    "PREZZO": "€ 2,53"
-  },
-  {
-    "CODICE": "MPS.42.0183.RO",
-    "DESCRIZIONE": "Porta scanner in PVC colore Rosa, per ripiano in Lamiera P 40 cm Ang. Int. 45°",
-    "PREZZO": "€ 2,53"
-  },
-  {
-    "CODICE": "MPS.42.0183.BL",
-    "DESCRIZIONE": "Porta scanner in PVC colore Blu, per ripiano in Lamiera P 40 cm Ang. Int. 45°",
-    "PREZZO": "€ 2,90"
-  },
-  {
-    "CODICE": "MPS.42.0106.GL",
-    "DESCRIZIONE": "Porta scanner in PVC colore Giallo, per ripiano in Lamiera P 50 cm Ang. Int. 45°",
-    "PREZZO": "€ 2,53"
-  },
-  {
-    "CODICE": "MPS.42.0106.RO",
-    "DESCRIZIONE": "Porta scanner in PVC colore Rosa, per ripiano in Lamiera P 50 cm Ang. Int. 45°",
-    "PREZZO": "€ 2,53"
-  },
-  {
-    "CODICE": "MPS.42.0106.BL",
-    "DESCRIZIONE": "Porta scanner in PVC colore Blu, per ripiano in Lamiera P 50 cm Ang. Int. 45°",
-    "PREZZO": "€ 2,53"
-  },
-  {
-    "CODICE": "MPS.42.0464.GL",
-    "DESCRIZIONE": "Porta scanner in PVC colore Giallo, per ripiano in lamiera Ang. EST. 45° da P 50 cm",
-    "PREZZO": "€ 2,53"
-  },
-  {
-    "CODICE": "MPS.42.0464.RO",
-    "DESCRIZIONE": "Porta scanner in PVC colore Rosa, per ripiano in lamiera Ang. EST. 45° da P 50 cm, tagliato",
-    "PREZZO": "€ 2,70"
-  },
-  {
-    "CODICE": "MPS.42.0030.GL",
-    "DESCRIZIONE": "Porta scanner in PVC colore Giallo, per ripiano in Lamiera P 60 cm Ang. Int. 45°",
-    "PREZZO": "€ 2,53"
-  },
-  {
-    "CODICE": "MPS.42.0030.RO",
-    "DESCRIZIONE": "Porta scanner in PVC colore Rosa, per ripiano in Lamiera P 60 cm Ang. Int. 45°",
-    "PREZZO": "€ 2,53"
-  },
-  {
-    "CODICE": "GLS39.0740.T",
-    "DESCRIZIONE": "Profilo porta prezzo in PVC L 740 x H39 mm - Trasparente (per ripiano in vetro)",
-    "PREZZO": "€ 1,54"
-  },
-  {
-    "CODICE": "GLS39.0990.T",
-    "DESCRIZIONE": "Profilo porta prezzo in PVC L 990 x H39 mm - Trasparente (per ripiano in vetro)",
-    "PREZZO": "€ 2,02"
-  },
-  {
-    "CODICE": "GLS39.0075.T",
-    "DESCRIZIONE": "Profilo porta prezzo in PVC L 75 x H39 mm - Trasparente (per ripiano in vetro)",
-    "PREZZO": "€ 0,35"
-  },
-  {
-    "CODICE": "GLS3.P.0070",
-    "DESCRIZIONE": "PROFILO PORTAPREZZI SLIM IN PLASTICA TRASPARENTE H.20MM L.70MM PER RIPIANO IN LEGNO COMPLETO DI FORO CENTRALE.",
-    "PREZZO": "€ 0,48"
-  },
-  {
-    "CODICE": "HE39.105°.0740.A&S",
-    "DESCRIZIONE": "Profilo porta prezzo in PVC L 740 x H 39 mm - Trasparente (per ripiano in legno) con fori  P002521.740",
-    "PREZZO": "€ 2,23"
-  },
-  {
-    "CODICE": "HE39.105°.0990.A&S",
-    "DESCRIZIONE": "Profilo porta prezzo in PVC L 990 x H 39 mm - Trasparente (per ripiano in legno) con fori P002521.990",
-    "PREZZO": "€ 2,86"
-  },
-  {
-    "CODICE": "HE39.105°.0075.A&S",
-    "DESCRIZIONE": "Profilo porta prezzo in PVC L 75 x H 39 mm - Trasparente (per ripiano in legno) con fori.......",
-    "PREZZO": "€ 0,20"
-  },
-  {
-    "CODICE": "GLS1.P.0740",
-    "DESCRIZIONE": "Porta scanner in PVC trasparente mod. \"SLIM\" per ripiano in vetro L 74 x H 2 cm",
+                ]
+            }
+        },
+        "PORTAPREZZI": {
+            "categorie": {
+                "PORTAPREZZI": [
+                    {
+                        "CODICE": "MPS.42.0742.GL",
+                        "DESCRIZIONE": "Porta scanner in PVC colore Giallo, per ripiano in lamiera L 75 x H 3,9 cm",
+                        "PREZZO": "€ 1,91"
+                    },
+                    {
+                        "CODICE": "MPS.42.0992.GL",
+                        "DESCRIZIONE": "Porta scanner in PVC colore Giallo, per ripiano in lamiera L 100 x H 3,9 cm",
+                        "PREZZO": "€ 2,44"
+                    },
+                    {
+                        "CODICE": "MPS.42.1318.GL",
+                        "DESCRIZIONE": "Porta scanner in PVC colore Giallo, per ripiano in lamiera L 131,8 x H 3,9 cm",
+                        "PREZZO": "€ 2,71"
+                    },
+                    {
+                        "CODICE": "MPS.42.0742.RO",
+                        "DESCRIZIONE": "Porta scanner in PVC colore Rosa, per ripiano in lamiera L 75 x H 3,9 cm",
+                        "PREZZO": "€ 1,91"
+                    },
+                    {
+                        "CODICE": "MPS.42.0992.RO",
+                        "DESCRIZIONE": "Porta scanner in PVC colore Rosa, per ripiano in lamiera L 100 x H 3,9 cm",
+                        "PREZZO": "€ 2,44"
+                    },
+                    {
+                        "CODICE": "MPS.42.1318.RO",
+                        "DESCRIZIONE": "Porta scanner in PVC colore Rosa, per ripiano in lamiera L 131,8 x H 3,9 cm",
+                        "PREZZO": "€ 2,71"
+                    },
+                    {
+                        "CODICE": "MPS.42.0742.BL",
+                        "DESCRIZIONE": "Porta scanner in PVC colore Blu, per ripiano in lamiera L 75 x H 3,9 cm",
+                        "PREZZO": "€ 1,68"
+                    },
+                    {
+                        "CODICE": "MPS.42.0992.BL",
+                        "DESCRIZIONE": "Porta scanner in PVC colore Blu, per ripiano in lamiera L 100 x H 3,9 cm",
+                        "PREZZO": "€ 2,15"
+                    },
+                    {
+                        "CODICE": "MPS.42.0259.GL",
+                        "DESCRIZIONE": "Porta scanner in PVC colore Giallo, per ripiano in Lamiera P 30 cm Ang. Int. 45°",
+                        "PREZZO": "€ 2,53"
+                    },
+                    {
+                        "CODICE": "MPS.42.0183.RO",
+                        "DESCRIZIONE": "Porta scanner in PVC colore Rosa, per ripiano in Lamiera P 40 cm Ang. Int. 45°",
+                        "PREZZO": "€ 2,53"
+                    },
+                    {
+                        "CODICE": "MPS.42.0183.BL",
+                        "DESCRIZIONE": "Porta scanner in PVC colore Blu, per ripiano in Lamiera P 40 cm Ang. Int. 45°",
+                        "PREZZO": "€ 2,90"
+                    },
+                    {
+                        "CODICE": "MPS.42.0106.GL",
+                        "DESCRIZIONE": "Porta scanner in PVC colore Giallo, per ripiano in Lamiera P 50 cm Ang. Int. 45°",
+                        "PREZZO": "€ 2,53"
+                    },
+                    {
+                        "CODICE": "MPS.42.0106.RO",
+                        "DESCRIZIONE": "Porta scanner in PVC colore Rosa, per ripiano in Lamiera P 50 cm Ang. Int. 45°",
+                        "PREZZO": "€ 2,53"
+                    },
+                    {
+                        "CODICE": "MPS.42.0106.BL",
+                        "DESCRIZIONE": "Porta scanner in PVC colore Blu, per ripiano in Lamiera P 50 cm Ang. Int. 45°",
+                        "PREZZO": "€ 2,53"
+                    },
+                    {
+                        "CODICE": "MPS.42.0464.GL",
+                        "DESCRIZIONE": "Porta scanner in PVC colore Giallo, per ripiano in lamiera Ang. EST. 45° da P 50 cm",
+                        "PREZZO": "€ 2,53"
+                    },
+                    {
+                        "CODICE": "MPS.42.0464.RO",
+                        "DESCRIZIONE": "Porta scanner in PVC colore Rosa, per ripiano in lamiera Ang. EST. 45° da P 50 cm, tagliato",
+                        "PREZZO": "€ 2,70"
+                    },
+                    {
+                        "CODICE": "MPS.42.0030.GL",
+                        "DESCRIZIONE": "Porta scanner in PVC colore Giallo, per ripiano in Lamiera P 60 cm Ang. Int. 45°",
+                        "PREZZO": "€ 2,53"
+                    },
+                    {
+                        "CODICE": "MPS.42.0030.RO",
+                        "DESCRIZIONE": "Porta scanner in PVC colore Rosa, per ripiano in Lamiera P 60 cm Ang. Int. 45°",
+                        "PREZZO": "€ 2,53"
+                    },
+                    {
+                        "CODICE": "GLS39.0740.T",
+                        "DESCRIZIONE": "Profilo porta prezzo in PVC L 740 x H39 mm - Trasparente (per ripiano in vetro)",
+                        "PREZZO": "€ 1,54"
+                    },
+                    {
+                        "CODICE": "GLS39.0990.T",
+                        "DESCRIZIONE": "Profilo porta prezzo in PVC L 990 x H39 mm - Trasparente (per ripiano in vetro)",
+                        "PREZZO": "€ 2,02"
+                    },
+                    {
+                        "CODICE": "GLS39.0075.T",
+                        "DESCRIZIONE": "Profilo porta prezzo in PVC L 75 x H39 mm - Trasparente (per ripiano in vetro)",
+                        "PREZZO": "€ 0,35"
+                    },
+                    {
+                        "CODICE": "GLS3.P.0070",
+                        "DESCRIZIONE": "PROFILO PORTAPREZZI SLIM IN PLASTICA TRASPARENTE H.20MM L.70MM PER RIPIANO IN LEGNO COMPLETO DI FORO CENTRALE.",
+                        "PREZZO": "€ 0,48"
+                    },
+                    {
+                        "CODICE": "HE39.105°.0740.A&S",
+                        "DESCRIZIONE": "Profilo porta prezzo in PVC L 740 x H 39 mm - Trasparente (per ripiano in legno) con fori  P002521.740",
+                        "PREZZO": "€ 2,23"
+                    },
+                    {
+                        "CODICE": "HE39.105°.0990.A&S",
+                        "DESCRIZIONE": "Profilo porta prezzo in PVC L 990 x H 39 mm - Trasparente (per ripiano in legno) con fori P002521.990",
+			"PREZZO": "€ 2,86"
+		    },
+	            {
+  			  "CODICE": "HE39.105°.0075.A&S",
+  			  "DESCRIZIONE": "Profilo porta prezzo in PVC L 75 x H 39 mm - Trasparente (per ripiano in legno) con fori.......",
+   			 "PREZZO": "€ 0,20"
+		  },
+ 		 {
+  		  "CODICE": "GLS1.P.0740",
+   		 "DESCRIZIONE": "Porta scanner in PVC trasparente mod. \"SLIM\" per ripiano in vetro L 74 x H 2 cm",
     "PREZZO": "€ 1,49"
   },
   {
