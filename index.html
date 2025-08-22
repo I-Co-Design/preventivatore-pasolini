@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>PREVENTIVATORE AUTOMATICO PROGETTO PROLUNGHE</title>
+    <title>PREVENTIVATORE AUTOMATICO CATALOGO ARREDO</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f7f7f7; }
         .container { max-width: 800px; margin: 40px auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px #bbb; padding: 30px; }
@@ -2697,8 +2697,18 @@ const prodotti = {
             }
         };
 
-        let preventivo = [];
-        let currentLinea = null;
+let preventivo = [];
+let currentLinea = null;
+let currentCategoria = null;
+
+// 🔹 Normalizza chiavi maiuscolo/minuscolo
+function normalizzaProdotto(p) {
+  return {
+    codice: p.codice || p.CODICE || "",
+    descrizione: p.descrizione || p.DESCRIZIONE || "",
+    prezzo: p.prezzo || p.PREZZO || 0
+  };
+}
 
         function checkLogin() {
             const pass = document.getElementById('passwordInput').value;
